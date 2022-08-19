@@ -1,8 +1,28 @@
 import numpy as np
-np.random.seed(0)
+import math
+
+np.random.seed(1234)
+
+def define_R(size):
+    R = np.zeros((size, size))
+    for i in range(size):
+        for j in range(size):
+            if (i == j):
+                R[i, j] = 0
+            else:
+                R[i, j] = 1/(size-1)
+    return R
+
+
+def define_N():
+    return [[i for i in range(1, n+1) if i != j] for j in range(1, n+1)]
+
+def Mk(k):
+    return math.floor(math.log(k+10,5))
+
 
 # ---------------------Initialization-----------------
-n=10
+n = 10
 # Defining f(X)
 f = [0.3, 0.7, 0.9, 0.5, 1.0, 1.4, 0.7, 0.8, 0.0, 0.6]
 
@@ -14,15 +34,13 @@ a = -0.5
 b = 1.9
 
 # Defining Transition Probability Matrix(R)
-R = np.random.rand(n, n)
-R = R / R.sum(axis=1, keepdims=True)
-print(R)
+R = define_R(n)
 
 # Defining Neighbourhood Structure(N)
-N=[[i for i in range(1, n+1) if i!=j] for j in range(1, n+1)]
+N = define_N()
 
 # Defining X0
-x0=np.random.randint(1,n+1)
+x0 = np.random.randint(1, n+1)
 
 # Initializing K
-k=0
+k = 0
