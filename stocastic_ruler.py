@@ -44,3 +44,21 @@ x0 = np.random.randint(1, n+1)
 
 # Initializing K
 k = 0
+
+# Limit on number of iterations for termination
+limit_k=100
+
+#---------------Implementing Stochastic Ruler Algorithm------------
+
+def step_1(x):
+    Nx= N[x-1]
+    P= [R[x-1][i-1] for i in Nx]
+    z=np.random.choice(Nx, p=P)
+    return z
+
+# def step_2(x):
+
+
+def step_3():
+    global k
+    k = k + 1
