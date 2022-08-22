@@ -62,11 +62,8 @@ N = define_N()
 # Defining Transition Probability Matrix(R)
 R = define_R(n,N)
 
-# Limiting number of times x can be repeated
-limit_unchanged_x = 5000
-
 # Number of iterations whole algo is to be run
-iter_count = 3
+iter_count = 500
 
 # Optimal f(x) as per the paper
 optimal_f = 0
@@ -80,11 +77,9 @@ def step_1(x):
     z = np.random.choice(Nx, p=P)
     return z
 
-
 def step_3():
     global k
     k = k + 1
-
 
 def step_2(k, xk, z, a, b):
     total_tests_to_do = Mk(k)
@@ -94,31 +89,21 @@ def step_2(k, xk, z, a, b):
         h_z = get_h_val(f(z))
         theta_val = get_theta_val(a, b)
         if (h_z > theta_val):
-            return "Failed"  # go to next step i.e. step-3
+            return 0  # go to next step i.e. step-3
         else:
             pass
         test_count += 1
-    return "Accept"
+    return 1
 
-
-depth_went = []
-Optimized_correctly = 0
-
-start = time.perf_counter_ns()
-
-for i in range(iter_count):
-    print("Iteration", i+1, end=" ")
-    # Initializing K
-    k = 0
+def stocastic_ruler():
     # Defining X0
     xk = find_x0()
     z = None
     unchanged_count = 0
     while (True):
         z = step_1(xk)
-        #print("k = ",k ," x = ",xk , " z = ",z ,"No neighbour found count = " ,unchanged_count)
         check = step_2(k, xk, z, a, b)
-        if (check == "Failed"):
+        if (check == 0):
             step_3()
             xk = xk
             unchanged_count += 1
@@ -126,19 +111,23 @@ for i in range(iter_count):
             step_3()
             xk = z
             unchanged_count = 0
-        if (unchanged_count == limit_unchanged_x):
+        if (f(xk)==optimal_f):
             depth_went.append(k)
             break
 
-    print("Final x_k = ", xk, "where f(x) = ", f(xk))
-    if (f(xk) == optimal_f):
-        Optimized_correctly += 1
+depth_went = []
+
+total_time=0
+for i in range(iter_count):
+    print("Iteration", i+1)
+    k=0
+    start = time.perf_counter_ns()
+    stocastic_ruler()
+    end = time.perf_counter_ns()
+    total_time+=end-start
     # go to step-1
 
-end = time.perf_counter_ns()
-
-print("Total Time = ", (end - start)/(10**9), " seconds")
+print("Total Time = ", (total_time)/(10**9), " seconds")
 print("Average_Time per iteration = ",
-      (end - start)/(iter_count*(10**9)), "seconds")
-print("Average cycle depth = ", sum(depth_went)/iter_count)
-print("Probability for optimizing correctly = ", Optimized_correctly/iter_count)
+      (total_time)/(iter_count*(10**9)), "seconds")
+print("Average k = ", sum(depth_went)/iter_count)
