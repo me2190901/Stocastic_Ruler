@@ -99,18 +99,15 @@ def stocastic_ruler():
     # Defining X0
     xk = find_x0()
     z = None
-    unchanged_count = 0
     while (True):
         z = step_1(xk)
         check = step_2(k, xk, z, a, b)
         if (check == 0):
             step_3()
             xk = xk
-            unchanged_count += 1
         else:
             step_3()
             xk = z
-            unchanged_count = 0
         if (f(xk)==optimal_f):
             depth_went.append(k)
             break

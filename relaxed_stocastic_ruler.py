@@ -7,24 +7,32 @@ np.random.seed(1234)
 # ---------------------Initialization-----------------
 
 
-def define_R(size):
+def define_R(size,N):
     R = np.zeros((size, size))
     for i in range(size):
-        for j in range(size):
-            if (i == j):
-                R[i, j] = 0
-            else:
-                R[i, j] = 1/(size-1)
+        neigh = N[i]
+        for item in neigh:
+            R[i][item-1] = 0.1
+
     return R
 
 def define_N():
-    return [[i for i in range(1, n+1) if i != j] for j in range(1, n+1)]
+    Neighbours = []
+    N = [i+1 for i in range(100)]
+    for i in range(100):
+        temp = []
+        for k in range(i-5,i):
+            temp.append(N[k])
+        for k in range(i+1,i+6):
+            temp.append(N[k%100])
+        Neighbours.append(temp)
+    return Neighbours
 
 def Mk(k):
     return math.floor(math.log(k+10, 5))
 
 def f(x):
-    f_vals = [0.3, 0.7, 0.9, 0.5, 1.0, 1.4, 0.7, 0.8, 0.0, 0.6]  # 1 based indexing
+    f_vals = [0.3, 0.7, 0.9, 0.5, 1, 1.4, 0.7, 0.8, 0.7, 0.6, 2.1, 2.2, 1.8, 0.1, 0.3, 0.7, 0.9, 1.1, 1.2, 1.4, 1.9, 0.2, 2.1, 2.2, 2.1, 2, 1.9, 1.2, 1.1, 0.7, 0.3, 0.1, 0.1, 1.5, 1.3, 1.2, 1.2, 0.3, 1.6, 0.8, 0.6, 0.7, 1.3, 1.9, 2, 0, 0.8, 0.3, 0.5, 0.6, 1.3, 1.5, 1.5, 1.8, 0.8, 2, 1.9, 1.1, 0.2, 1.3, 0.6, 0.3, 0.5, 0.6, 0.7, 0.9, 1.3, 1.4, 1.6, 0.2, 0.1, 0.8, 0.7, 0.8, 0.9, 0.7, 0.6, 0.5, 0.9, 0.1, 1.4, 1.6, 0.3, 1.1, 0.6, 0.9, 0.1, 2.1, 0.9, 1.8, 1.7, 1.7, 1.3, 1.2, 0.4, 0.9, 1.3, 1.1, 1.9, 1.4]
     return f_vals[x-1]
 
 def find_x0():
@@ -39,20 +47,23 @@ def get_theta_val(a, b):
     temp = np.random.uniform(low=a, high=b, size=1)  # [low,high)
     return temp[0]
 
-n = 10
+n = 100
 
 # Defining Discrete Set S
 S = [i for i in range(1, n+1)]
 
 # Defining parameters for Theta
 a = -0.5
-b = 1.9
-
-# Defining Transition Probability Matrix(R)
-R = define_R(n)
+b = 2.7
 
 # Defining Neighbourhood Structure(N)
 N = define_N()
+
+# Defining Transition Probability Matrix(R)
+R = define_R(n,N)
+
+# Defining alpha
+alpha = 0.60
 
 # Number of iterations whole algo is to be run
 iter_count = 500
@@ -74,18 +85,21 @@ def step_3():
     k = k + 1
 
 def step_2(k, xk, z, a, b):
-    total_tests_to_do = Mk(k)
-    test_count = 0
-    while (test_count < total_tests_to_do):
+    sucessful=0
+    unsucessful=0
+    M = Mk(k)
+    while (True):
         # realization for h(z) i.e. uniform random between f(z)-0.5 , f(z)+0.5
         h_z = get_h_val(f(z))
         theta_val = get_theta_val(a, b)
         if (h_z > theta_val):
-            return 0  # go to next step i.e. step-3
+            unsucessful+=1
+            if(unsucessful>M-math.floor(alpha*M)):
+                return 0
         else:
-            pass
-        test_count += 1
-    return 1
+            sucessful+=1
+            if(sucessful==math.floor(alpha*M)):
+                return 1
 
 def stocastic_ruler():
     # Defining X0
@@ -108,7 +122,7 @@ depth_went = []
 
 total_time=0
 for i in range(iter_count):
-    print("Iteration", i+1)
+    # print("Iteration", i+1)
     k=0
     start = time.perf_counter_ns()
     stocastic_ruler()
