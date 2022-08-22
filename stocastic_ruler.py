@@ -24,8 +24,7 @@ def Mk(k):
     return math.floor(math.log(k+10, 5))
 
 def f(x):
-    f_vals = [0.3, 0.7, 0.9, 0.5, 1.0, 1.4,
-              0.7, 0.8, 0.0, 0.6]  # 1 based indexing
+    f_vals = [0.3, 0.7, 0.9, 0.5, 1.0, 1.4, 0.7, 0.8, 0.0, 0.6]  # 1 based indexing
     return f_vals[x-1]
 
 def find_x0():
@@ -33,8 +32,7 @@ def find_x0():
     return x0
 
 def get_h_val(f_x):
-    temp = np.random.uniform(low=f_x - 0.5, high=f_x +
-                             0.5, size=1)  # [low,high)
+    temp = np.random.uniform(low=f_x - 0.5, high=f_x + 0.5, size=1)  # [low,high)
     return temp[0]
 
 def get_theta_val(a, b):
@@ -101,7 +99,7 @@ Optimized_correctly = 0
 start = time.perf_counter_ns()
 
 for i in range(iter_count):
-    print("Iteration", i+1)
+    print("Iteration", i+1, end=" ")
     # Initializing K
     k = 0
     # Defining X0
