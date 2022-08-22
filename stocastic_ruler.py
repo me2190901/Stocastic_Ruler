@@ -84,11 +84,11 @@ def step_2(k, xk, z, a, b):
         h_z = get_h_val(f(z))
         theta_val = get_theta_val(a, b)
         if (h_z > theta_val):
-            return "Failed"  # go to next step i.e. step-3
+            return 0  # go to next step i.e. step-3
         else:
             pass
         test_count += 1
-    return "Accept"
+    return 1
 
 def stocastic_ruler():
     # Defining X0
@@ -97,9 +97,8 @@ def stocastic_ruler():
     unchanged_count = 0
     while (True):
         z = step_1(xk)
-        #print("k = ",k ," x = ",xk , " z = ",z ,"No neighbour found count = " ,unchanged_count)
         check = step_2(k, xk, z, a, b)
-        if (check == "Failed"):
+        if (check == 0):
             step_3()
             xk = xk
             unchanged_count += 1
