@@ -17,31 +17,29 @@ def define_R(size):
                 R[i, j] = 1/(size-1)
     return R
 
-
 def define_N():
     return [[i for i in range(1, n+1) if i != j] for j in range(1, n+1)]
 
-
 def Mk(k):
     return math.floor(math.log(k+10, 5))
-
 
 def f(x):
     f_vals = [0.3, 0.7, 0.9, 0.5, 1.0, 1.4,
               0.7, 0.8, 0.0, 0.6]  # 1 based indexing
     return f_vals[x-1]
 
-
 def find_x0():
     x0 = np.random.randint(1, n+1)
     return x0
-
 
 def get_h_val(f_x):
     temp = np.random.uniform(low=f_x - 0.5, high=f_x +
                              0.5, size=1)  # [low,high)
     return temp[0]
 
+def get_theta_val(a, b):
+    temp = np.random.uniform(low=a, high=b, size=1)  # [low,high)
+    return temp[0]
 
 n = 10
 
@@ -52,19 +50,13 @@ S = [i for i in range(1, n+1)]
 a = -0.5
 b = 1.9
 
-
-def get_theta_val(a, b):
-    temp = np.random.uniform(low=a, high=b, size=1)  # [low,high)
-    return temp[0]
-
-
 # Defining Transition Probability Matrix(R)
 R = define_R(n)
 
 # Defining Neighbourhood Structure(N)
 N = define_N()
 
-# Initializing K
+# Limiting number of times x can be repeated
 limit_unchanged_x = 100
 
 # Number of iterations whole algo is to be run
