@@ -33,14 +33,6 @@ def find_x0():
     x0 = list(map(tuple,np.random.randint(0, n,[3,2])))
     return x0
 
-# def get_h_val(f_x):
-#     temp = np.random.uniform(low=f_x - 0.5, high=f_x + 0.5, size=1)  # [low,high)
-#     return temp[0]
-
-def get_theta_val(a, b):
-    temp = np.random.uniform(low=a, high=b, size=1)  # [low,high)
-    return temp[0]
-
 # Defining parameters for Theta
 a = 250
 b = 800
@@ -54,11 +46,42 @@ R = define_R()
 # Number of iterations whole algo is to be run
 iter_count = 1
 
+# Parameters for normal distribution
+T0=100
+U=180
+Sigma=30
+
 # # Optimal f(x) as per the paper
 # optimal_f = 0
 
-# ---------------Implementing Stochastic Ruler Algorithm------------
+##################################Implementing Helper functions for algorithm############################################
 
+def nearest_distance(i,j,x):
+    ### nearest travelling needed from (i,j) to list of locations in x
+    return min([abs(item[0]-i)+abs(item[1]-j)  for item in x])
+
+
+def get_theta_val(a, b):
+    temp = np.random.uniform(low=a, high=b, size=1)  # [low,high)
+    return temp[0]
+
+def get_h_val( x, To= T0, n=n, u=U, sigma= Sigma):
+    ### x is a list of three tuples with 0-based indexing
+    avg_dist_daywise = []
+    for t in range(To):
+        total_day = 0                                    ##### total distance travelled by people
+        ###### now finding nearest facility and saving total distance travelled in each entry of data
+        for i in range(n):
+            for j in range(n):
+                demand=-1
+                while(demand<0):
+                    demand= np.random.normal(u, sigma, size=1)[0]
+                total_day += demand*nearest_distance(i,j,x)  ### total distance from i,j th location to nearest facility
+                 
+        avg_dist_daywise.append(total_day/(n*n))    
+    return sum(avg_dist_daywise)/len(avg_dist_daywise)
+
+##################################Implementing Stochastic Ruler Algorithm############################################
 
 def step_1(x):
     Nx = N(x)
@@ -71,19 +94,19 @@ def step_3():
     global k
     k = k + 1
 
-# def step_2(k, xk, z, a, b):
-#     total_tests_to_do = Mk(k)
-#     test_count = 0
-#     while (test_count < total_tests_to_do):
-#         # realization for h(z) i.e. uniform random between f(z)-0.5 , f(z)+0.5
-#         h_z = get_h_val(f(z))
-#         theta_val = get_theta_val(a, b)
-#         if (h_z > theta_val):
-#             return 0  # go to next step i.e. step-3
-#         else:
-#             pass
-#         test_count += 1
-#     return 1
+def step_2(k, xk, z, a, b):
+    total_tests_to_do = Mk(k)
+    test_count = 0
+    while (test_count < total_tests_to_do):
+        # realization for h(z) i.e. uniform random between f(z)-0.5 , f(z)+0.5
+        h_z = get_h_val(z)
+        theta_val = get_theta_val(a, b)
+        if (h_z > theta_val):
+            return 0  # go to next step i.e. step-3
+        else:
+            pass
+        test_count += 1
+    return 1
 
 # def stocastic_ruler():
 #     # Defining X0
