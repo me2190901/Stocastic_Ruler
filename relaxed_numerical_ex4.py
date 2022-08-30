@@ -19,9 +19,6 @@ def define_N_Candidates():
             Neighbours[(i,j)]=[((i-1)%n,j%n),((i+1)%n,j%n),(i%n,(j-1)%n),(i%n,(j+1)%n)]
     return Neighbours
 
-def N(x):
-    return list(product(N_Candidates[x[0]],N_Candidates[x[1]],N_Candidates[x[2]]))
-
 def Mk(k):
     return math.floor(math.log(k+10, 5))
 
@@ -35,6 +32,8 @@ b = 800
 
 # Defining Neighbourhood Structure(N)
 N_Candidates = define_N_Candidates()
+def N(x):
+    return list(product(N_Candidates[x[0]],N_Candidates[x[1]],N_Candidates[x[2]]))
 
 # Defining Transition Probability Matrix(R)
 R = define_R()
@@ -50,7 +49,7 @@ Sigma = 30
 T0 = 30
 
 # Defining alpha
-alpha = 0.75
+alpha = 0.5
 
 # Defining percentage reduction for objective function
 per_reduction=5
@@ -108,13 +107,18 @@ def step_2(k, xk, z, a, b):
         theta_val = get_theta_val(a, b)
         if (h_z > theta_val):
             unsucessful+=1
-            if(unsucessful>M-math.floor(alpha*M)):
+            if(unsucessful>M-math.ceil(alpha*M)):
                 return 0
         else:
             sucessful+=1
-            if(sucessful==math.floor(alpha*M)):
+            if(sucessful==math.ceil(alpha*M)):
                 sum_hz=sum_hz/(sucessful+unsucessful)
                 return 1
+
+global no_failures
+global obj_value
+no_failures=0
+obj_value=0
 
 def stocastic_ruler():
     global no_failures

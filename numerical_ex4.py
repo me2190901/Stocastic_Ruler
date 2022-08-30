@@ -19,9 +19,6 @@ def define_N_Candidates():
             Neighbours[(i,j)]=[((i-1)%n,j%n),((i+1)%n,j%n),(i%n,(j-1)%n),(i%n,(j+1)%n)]
     return Neighbours
 
-def N(x):
-    return list(product(N_Candidates[x[0]],N_Candidates[x[1]],N_Candidates[x[2]]))
-
 def Mk(k):
     return math.floor(math.log(k+10, 5))
 
@@ -35,6 +32,8 @@ b = 800
 
 # Defining Neighbourhood Structure(N)
 N_Candidates = define_N_Candidates()
+def N(x):
+    return list(product(N_Candidates[x[0]],N_Candidates[x[1]],N_Candidates[x[2]]))
 
 # Defining Transition Probability Matrix(R)
 R = define_R()
@@ -92,13 +91,13 @@ def step_3():
     k = k + 1
 
 sum_hz=0
+
 def step_2(k, xk, z, a, b):
     global sum_hz
     sum_hz=0
     total_tests_to_do = Mk(k)
     test_count = 0
     while (test_count < total_tests_to_do):
-        # realization for h(z) i.e. uniform random between f(z)-0.5 , f(z)+0.5
         h_z = get_h_val(z)
         theta_val = get_theta_val(a, b)
         if (h_z > theta_val):
@@ -109,6 +108,11 @@ def step_2(k, xk, z, a, b):
         sum_hz+=h_z
     sum_hz=sum_hz/total_tests_to_do
     return 1
+
+global no_failures
+global obj_value
+no_failures=0
+obj_value=0
 
 def stocastic_ruler():
     global no_failures
@@ -130,9 +134,9 @@ def stocastic_ruler():
             fz.append(sum_hz)
             obj_value=min(fz)
             if((fz[0]-fz[-1])/fz[0]>=per_reduction/100):
-                break
+                return
         if (k==150):
-            break
+            return
 
 total_time=0
 avg_no_failures=0
@@ -155,4 +159,3 @@ print("Average_Time per iteration = ",
       (total_time)/(iter_count*(10**9)), "seconds")
 print("Average Objective function value = ",avg_obj_value/iter_count)
 print("Average number of failures = ",no_failures/iter_count)
-print(k)
