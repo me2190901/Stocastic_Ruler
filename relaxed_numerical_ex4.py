@@ -48,6 +48,9 @@ Sigma = 30
 # Time period for demand measurement
 T0 = 30
 
+# Defining alpha
+alpha = 0.5
+
 # Defining percentage reduction for objective function
 per_reduction=5
 
@@ -91,23 +94,26 @@ def step_3():
     k = k + 1
 
 sum_hz=0
-
 def step_2(k, xk, z, a, b):
     global sum_hz
     sum_hz=0
-    total_tests_to_do = Mk(k)
-    test_count = 0
-    while (test_count < total_tests_to_do):
+    sucessful=0
+    unsucessful=0
+    M = Mk(k)
+    while (True):
+        # realization for h(z) i.e. uniform random between f(z)-0.5 , f(z)+0.5
         h_z = get_h_val(z)
+        sum_hz+=h_z
         theta_val = get_theta_val(a, b)
         if (h_z > theta_val):
-            return 0  # go to next step i.e. step-3
+            unsucessful+=1
+            if(unsucessful>M-math.ceil(alpha*M)):
+                return 0
         else:
-            pass
-        test_count += 1
-        sum_hz+=h_z
-    sum_hz=sum_hz/total_tests_to_do
-    return 1
+            sucessful+=1
+            if(sucessful==math.ceil(alpha*M)):
+                sum_hz=sum_hz/(sucessful+unsucessful)
+                return 1
 
 global no_failures
 global obj_value
@@ -134,9 +140,9 @@ def stocastic_ruler():
             fz.append(sum_hz)
             obj_value=min(fz)
             if((fz[0]-fz[-1])/fz[0]>=per_reduction/100):
-                return
+                break
         if (k==150):
-            return
+            break
 
 total_time=0
 avg_no_failures=0
@@ -152,6 +158,7 @@ for i in range(iter_count):
     total_time+=end-start
     avg_no_failures+=no_failures
     avg_obj_value+=obj_value
+    print("K:",k)
     # go to step-1
 
 print("Total Time = ", (total_time)/(10**9), " seconds")
