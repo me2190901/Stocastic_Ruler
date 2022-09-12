@@ -134,9 +134,10 @@ def stocastic_ruler():
             fz.append(sum_hz)
             obj_value=min(fz)
             if((fz[0]-fz[-1])/fz[0]>=per_reduction/100):
-                return
+                break
         if (k==150):
-            return
+            break
+    print(xk)
 
 total_time=0
 avg_no_failures=0
