@@ -137,7 +137,10 @@ def stocastic_ruler():
                 break
         if (k==150):
             break
-    print(xk)
+    matrix  = np.zeros((n,n))
+    for loc in xk:
+        matrix[loc[0]][loc[1]]=1
+    print(matrix)
 
 total_time=0
 avg_no_failures=0
