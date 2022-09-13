@@ -49,7 +49,7 @@ Sigma = 30
 T0 = 30
 
 # Defining alpha
-alpha = 0.5
+alpha = 0.8
 
 # Defining percentage reduction for objective function
 per_reduction=5
@@ -143,6 +143,10 @@ def stocastic_ruler():
                 break
         if (k==150):
             break
+    matrix  = np.zeros((n,n))
+    for loc in xk:
+        matrix[loc[0]][loc[1]]=1
+    print(matrix)
 
 total_time=0
 avg_no_failures=0
