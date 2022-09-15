@@ -49,7 +49,10 @@ Sigma = 30
 T0 = 30
 
 # Defining percentage reduction for objective function
-per_reduction=5
+per_reduction=50
+
+# Defining limit on the value of k
+limit_k = 150
 
 
 ##################################Implementing Helper functions for algorithm############################################
@@ -75,7 +78,7 @@ def get_h_val( x, To= T0, n=n, u=U, sigma= Sigma):
                     demand= np.random.normal(u, sigma, size=1)[0]
                 total_day += demand*nearest_distance(i,j,x)  ### total distance from i,j th location to nearest facility
         avg_dist_daywise.append(total_day/(n*n))    
-    return sum(avg_dist_daywise)/len(avg_dist_daywise)
+    return sum(avg_dist_daywise)/T0
 
 ##################################Implementing Stochastic Ruler Algorithm############################################
 
@@ -135,7 +138,7 @@ def stocastic_ruler():
             obj_value=min(fz)
             if((fz[0]-fz[-1])/fz[0]>=per_reduction/100):
                 break
-        if (k==150):
+        if (k==limit_k):
             break
     matrix  = np.zeros((n,n))
     for loc in xk:

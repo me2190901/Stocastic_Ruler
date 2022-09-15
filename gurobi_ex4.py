@@ -45,3 +45,6 @@ for v in m.getVars():
         output_mat[id_//round(pow(n,0.5))][id_%round(pow(n,0.5))] = 1
 
 print(output_mat)
+objec = m.getObjective()
+obj=objec.getValue()/(n*T0)
+print('Obj: %g' % obj)
