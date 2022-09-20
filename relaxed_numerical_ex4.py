@@ -52,13 +52,17 @@ T0 = 30
 alpha = 0.8
 
 # Defining percentage reduction for objective function
-per_reduction = 50
+per_reduction = 5
 
 # Defining limit on the value of k
 limit_k = 150
 
 
 ##################################Implementing Helper functions for algorithm############################################
+
+def define_demand(**para):
+    # return np.random.normal(para["u"], para["sigma"], size=1)[0] #for normal distribution of demand
+    return np.random.uniform(para["low"], para["high"], size=1)[0] #for uniform distribution of demand
 
 def nearest_distance(i,j,x):
     ### nearest travelling needed from (i,j) to list of locations in x
@@ -78,7 +82,8 @@ def get_h_val( x, To= T0, n=n, u=U, sigma= Sigma):
             for j in range(n):
                 demand=-1
                 while(demand<0):
-                    demand= np.random.normal(u, sigma, size=1)[0]
+                    # demand = define_demand(u=u,sigma=sigma)  #for normal distribution of demand
+                    demand = define_demand(low=u-sigma,high=u+sigma)  #for uniform distribution of demand
                 total_day += demand*nearest_distance(i,j,x)  ### total distance from i,j th location to nearest facility
         avg_dist_daywise.append(total_day/(n*n))    
     return sum(avg_dist_daywise)/T0
