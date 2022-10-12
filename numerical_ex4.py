@@ -103,10 +103,7 @@ def step_3():
     global k
     k = k + 1
 
-sum_hz=0
-
 def step_2(k, xk, z, a, b):
-    global sum_hz
     sum_hz=0
     total_tests_to_do = Mk(k)
     test_count = 0
@@ -114,13 +111,13 @@ def step_2(k, xk, z, a, b):
         h_z = get_h_val(z)
         theta_val = get_theta_val(a, b)
         if (h_z > theta_val):
-            return 0  # go to next step i.e. step-3
+            return 0,sum_hz  # go to next step i.e. step-3
         else:
             pass
         test_count += 1
         sum_hz+=h_z
     sum_hz=sum_hz/total_tests_to_do
-    return 1
+    return 1, sum_hz
 
 global no_failures
 global obj_value
@@ -128,15 +125,18 @@ no_failures=0
 obj_value=0
 
 def stocastic_ruler(per_reduction):
+    np.random.seed(1234)
     global no_failures
     global obj_value
+    no_failures=0
+    obj_value=0
     # Defining X0
     xk = find_x0()
     z = None
     fz=[]
     while (True):
         z = step_1(xk)
-        check = step_2(k, xk, z, a, b)
+        check,sum_hz = step_2(k, xk, z, a, b)
         if (check == 0):
             step_3()
             xk = xk
@@ -148,7 +148,7 @@ def stocastic_ruler(per_reduction):
             obj_value=min(fz)
             if((fz[0]-fz[-1])/fz[0]>=per_reduction/100):
                 break
-        if (k==limit_k):
+        if (k>=limit_k):
             break
     matrix  = np.zeros((n,n))
     for loc in xk:
@@ -159,6 +159,11 @@ total_time=0
 avg_no_failures=0
 avg_obj_value=0
 for per_red in per_reduction_list:
+    global k
+    k=0
+    total_time=0
+    avg_no_failures=0
+    avg_obj_value=0
     for i in range(iter_count):
         print("Iteration", i+1)
         k=0
@@ -172,11 +177,11 @@ for per_red in per_reduction_list:
         avg_obj_value+=obj_value
         # go to step-1
     print("Percentage Reduction:", per_red)
-    print("Total Time = ", (total_time)/(10**9), " seconds")
+    # print("Total Time = ", (total_time)/(10**9), " seconds")
     print("Average_Time per iteration = ",
         (total_time)/(iter_count*(10**9)), "seconds")
     print("Average Objective function value = ",avg_obj_value/iter_count)
-    print("Average number of failures = ",no_failures/iter_count)
+    # print("Average number of failures = ",no_failures/iter_count)
     plt.imshow(matrix , cmap= "Greens" )
     ax = plt.gca()
     ax.set_xticks(np.arange(0, 6, 1))
@@ -184,7 +189,7 @@ for per_red in per_reduction_list:
     ax.set_xticks(np.arange(-.5, 6, 1), minor=True)
     ax.set_yticks(np.arange(-.5, 6, 1), minor=True)
     ax.grid(which='minor', color='b', linestyle='-', linewidth=2)
-    plt.grid(b= True,which = "minor", color ="black")
+    plt.grid(visible= True,which = "minor", color ="black")
     plt.title("Distribution: Normal, %red = " +str(per_red)+ "%")
     #plt.title("Distribution: Uniform, %red = " +str(per_reduction)+ "%")
     #plt.title("Distribution: Triangular(Symmetric), %red = " +str(per_reduction)+ "%")
