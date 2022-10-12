@@ -1,14 +1,25 @@
 import gurobipy as gp
 from gurobipy import GRB
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Create a new model
 m = gp.Model("ex4")
 
+def find_u_triangle(a,c,b):
+    return ((c-a)*(2*c+a)/(3*(b-a)))-((c-b)*(2*c+b)/(3*(b-a)))
+
 n = 6*6
 p = 3
 u = 180
+sigma=30
+# u = find_u_triangle(u-3*sigma,u,u+3*sigma) # u for symmetric triangle distribution
+# u = find_u_triangle(u-3*sigma,u-sigma,u+3*sigma) # u for right skewed triangle distribution
+# u = find_u_triangle(u-3*sigma,u+sigma,u+3*sigma) # u for left skewed triangle distribution
+
 T0 = 30
+
+
 
 def distance(location, facility, N):
     row1 = location // N
@@ -48,3 +59,18 @@ print(output_mat)
 objec = m.getObjective()
 obj=objec.getValue()/(n*T0)
 print('Obj: %g' % obj)
+
+plt.imshow(output_mat , cmap= "Greens" )
+ax = plt.gca()
+ax.set_xticks(np.arange(0, 6, 1))
+ax.set_yticks(np.arange(0, 6, 1))
+ax.set_xticks(np.arange(-.5, 6, 1), minor=True)
+ax.set_yticks(np.arange(-.5, 6, 1), minor=True)
+ax.grid(which='minor', color='b', linestyle='-', linewidth=2)
+plt.grid(b= True,which = "minor", color ="black")
+#plt.title("Distribution: Normal, %red = " +str(per_reduction)+ "%")
+#plt.title("Distribution: Uniform, %red = " +str(per_reduction)+ "%")
+#plt.title("Distribution: Triangular(Symmetric), %red = " +str(per_reduction)+ "%")
+#plt.title("Distribution: Triangular(Left Skewed), %red = " +str(per_reduction)+ "%")
+plt.title("P-median formulation")
+plt.show()
