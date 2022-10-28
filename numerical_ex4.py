@@ -1,8 +1,13 @@
+from glob import glob
+from pickle import TRUE
+from matplotlib import markers
 import numpy as np
 import math
 import time
 from itertools import product
 import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
 
 np.random.seed(1234)
 
@@ -51,17 +56,18 @@ T0 = 30
 
 # Defining percentage reduction for objective function
 per_reduction_list=[5,15,25,40,50]
+global df
+df = pd.DataFrame(columns = ["k","obj_value","per_red"])
 
 # Defining limit on the value of k
-limit_k = 300
-
+limit_k = 1000
 
 ##################################Implementing Helper functions for algorithm############################################
 
 def define_demand(**para):
-    return np.random.normal(para["u"], para["sigma"], size=1)[0] #for normal distribution of demand
+    # return np.random.normal(para["u"], para["sigma"], size=1)[0] #for normal distribution of demand
     # return np.random.uniform(para["low"], para["high"], size=1)[0] #for uniform distribution of demand
-    # return np.random.triangular(para["low"], para["mode"], para["high"], size=1)[0] #for triangular distribution of demand
+    return np.random.triangular(para["low"], para["mode"], para["high"], size=1)[0] #for triangular distribution of demand
 
 def nearest_distance(i,j,x):
     ### nearest travelling needed from (i,j) to list of locations in x
@@ -81,11 +87,11 @@ def get_h_val( x, To= T0, n=n, u=U, sigma= Sigma):
             for j in range(n):
                 demand=-1
                 while(demand<0):
-                    demand = define_demand(u=u,sigma=sigma)  #for normal distribution of demand
+                    # demand = define_demand(u=u,sigma=sigma)  #for normal distribution of demand
                     # demand = define_demand(low=u-3*sigma,high=u+3*sigma)  #for uniform distribution of demand
                     # demand = define_demand(low=u-3*sigma,mode=u      ,high=u+3*sigma)  #for triangular distribution of demand
-                    # demand = define_demand(low=u-3*sigma,mode=u-sigma,high=u+3*sigma)    #for triangular distribution of demand (right skewed)
-                    # demand = define_demand(low=u-3*sigma,mode=u+sigma,high=u+3*sigma)  #for triangular distribution of demand (left skewed)
+                    # demand = define_demand(low=u-3*sigma,mode=u-sigma,high=u+3*sigma)  #for triangular distribution of demand (right skewed)
+                    demand = define_demand(low=u-3*sigma,mode=u+sigma,high=u+3*sigma)  #for triangular distribution of demand (left skewed)
                 total_day += demand*nearest_distance(i,j,x)  ### total distance from i,j th location to nearest facility
         avg_dist_daywise.append(total_day/(n*n))    
     return sum(avg_dist_daywise)/T0
@@ -128,6 +134,7 @@ def stocastic_ruler(per_reduction):
     np.random.seed(1234)
     global no_failures
     global obj_value
+    global df
     no_failures=0
     obj_value=0
     # Defining X0
@@ -135,6 +142,8 @@ def stocastic_ruler(per_reduction):
     z = None
     fz=[]
     while (True):
+        if(obj_value!=0 and (len(df)==0 or k>= df.iloc[-1]["k"]) ):
+            df = df.append({'k' : k, 'obj_value' : obj_value, 'per_red' : per_reduction},ignore_index = True)
         z = step_1(xk)
         check,sum_hz = step_2(k, xk, z, a, b)
         if (check == 0):
@@ -147,6 +156,8 @@ def stocastic_ruler(per_reduction):
             fz.append(sum_hz)
             obj_value=min(fz)
             if((fz[0]-fz[-1])/fz[0]>=per_reduction/100):
+                if(obj_value!=0 and (len(df)==0 or k>= df.iloc[-1]["k"])):
+                    df = df.append({'k' : k, 'obj_value' : obj_value, 'per_red' : per_reduction},ignore_index = True)
                 break
         if (k>=limit_k):
             break
@@ -190,13 +201,27 @@ for per_red in per_reduction_list:
     ax.set_yticks(np.arange(-.5, 6, 1), minor=True)
     ax.grid(which='minor', color='b', linestyle='-', linewidth=2)
     plt.grid(visible= True,which = "minor", color ="black")
-    plt.title("Distribution: Normal, %red = " +str(per_red)+ "%")
+    # plt.title("Distribution: Normal, %red = " +str(per_red)+ "%")
     # plt.title("Distribution: Uniform, %red = " +str(per_red)+ "%")
-    #plt.title("Distribution: Triangular(Symmetric), %red = " +str(per_red)+ "%")
-    #plt.title("Distribution: Triangular(Left Skewed), %red = " +str(per_red)+ "%")
+    # plt.title("Distribution: Triangular(Symmetric), %red = " +str(per_red)+ "%")
+    plt.title("Distribution: Triangular(Left Skewed), %red = " +str(per_red)+ "%")
     # plt.title("Distribution: Triangular(Right Skewed), %red = " +str(per_red)+ "%")
-    plt.savefig("./images/Normal_"+str(per_red)+".png")
+    # plt.savefig("./images/Normal_"+str(per_red)+".png")
     # plt.savefig("./images/Uniform_"+str(per_red)+".png")
     # plt.savefig("./images/Triangular_Symmetric_"+str(per_red)+".png")
-    # plt.savefig("./images/Triangular_Left_Skewed_"+str(per_red)+".png")
+    plt.savefig("./images/Triangular_Left_Skewed_"+str(per_red)+".png")
     # plt.savefig("./images/Triangular_Right_Skewed_"+str(per_red)+".png")
+
+sns.relplot(data = df, x="k", kind ="line", y ="obj_value", hue = "per_red", markers = True, palette = "husl")
+# ---------------------------------------------------title------------------------------------------
+# plt.title("Distribution: Normal")
+# plt.title("Distribution: Uniform")
+# plt.title("Distribution: Triangular(Symmetric)")
+plt.title("Distribution: Triangular(Left Skewed)")
+# plt.title("Distribution: Triangular(Right Skewed)")
+# ---------------------------------------------------file name------------------------------------------
+# plt.savefig("./images/Normal_k="+str(limit_k)+".png")
+# plt.savefig("./images/Uniform_k="+str(limit_k)+".png")
+# plt.savefig("./images/Triangular_Symmetric_k="+str(limit_k)+".png")
+plt.savefig("./images/Triangular_Left_Skewed_k="+str(limit_k)+".png")
+# plt.savefig("./images/Triangular_Right_Skewed_k="+str(limit_k)+".png")
