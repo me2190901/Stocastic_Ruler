@@ -12,13 +12,13 @@ import pandas as pd
 np.random.seed(1234)
 
 # ---------------------Initialization-----------------
-n = 6
+N = 6
 
 def define_R():
     R = [1/64 for i in range(64)]
     return R
 
-def define_N_Candidates():
+def define_N_Candidates(n=N):
     Neighbours = {}
     for i in range(n):
         for j in range(n):
@@ -28,7 +28,7 @@ def define_N_Candidates():
 def Mk(k):
     return math.floor(math.log(k+10, 5))
 
-def find_x0():
+def find_x0(n=N):
     x0 = list(map(tuple,np.random.randint(0, n,[3,2])))
     return x0
 
@@ -37,7 +37,7 @@ a = 250
 b = 800
 
 # Defining Neighbourhood Structure(N)
-N_Candidates = define_N_Candidates()
+N_Candidates = define_N_Candidates(N)
 def N(x):
     return list(product(N_Candidates[x[0]],N_Candidates[x[1]],N_Candidates[x[2]]))
 
@@ -60,7 +60,7 @@ global df
 df = pd.DataFrame(columns = ["k","obj_value","per_red"])
 
 # Defining limit on the value of k
-limit_k = 1000
+limit_k = 300
 
 ##################################Implementing Helper functions for algorithm############################################
 
@@ -77,10 +77,10 @@ def get_theta_val(a, b):
     temp = np.random.uniform(low=a, high=b, size=1)  # [low,high)
     return temp[0]
 
-def get_h_val( x, To= T0, n=n, u=U, sigma= Sigma):
+def get_h_val( x, **params):
     ### x is a list of three tuples with 0-based indexing
     avg_dist_daywise = []
-    for t in range(To):
+    for t in range(params["To"]):
         total_day = 0                                    ##### total distance travelled by people
         ###### now finding nearest facility and saving total distance travelled in each entry of data
         for i in range(n):
@@ -91,7 +91,7 @@ def get_h_val( x, To= T0, n=n, u=U, sigma= Sigma):
                     # demand = define_demand(low=u-3*sigma,high=u+3*sigma)  #for uniform distribution of demand
                     # demand = define_demand(low=u-3*sigma,mode=u      ,high=u+3*sigma)  #for triangular distribution of demand
                     # demand = define_demand(low=u-3*sigma,mode=u-sigma,high=u+3*sigma)  #for triangular distribution of demand (right skewed)
-                    demand = define_demand(low=u-3*sigma,mode=u+sigma,high=u+3*sigma)  #for triangular distribution of demand (left skewed)
+                    demand = define_demand(low=params["u"]-3*params["sigma"],mode=params["u"]+params["sigma"],high=params["u"]+3*params["u"])  #for triangular distribution of demand (left skewed)
                 total_day += demand*nearest_distance(i,j,x)  ### total distance from i,j th location to nearest facility
         avg_dist_daywise.append(total_day/(n*n))    
     return sum(avg_dist_daywise)/T0
@@ -109,12 +109,12 @@ def step_3():
     global k
     k = k + 1
 
-def step_2(k, xk, z, a, b):
+def step_2(k, xk, z, a, b,**params):
     sum_hz=0
     total_tests_to_do = Mk(k)
     test_count = 0
     while (test_count < total_tests_to_do):
-        h_z = get_h_val(z)
+        h_z = get_h_val(z,**params)
         theta_val = get_theta_val(a, b)
         if (h_z > theta_val):
             return 0,sum_hz  # go to next step i.e. step-3
@@ -130,7 +130,7 @@ global obj_value
 no_failures=0
 obj_value=0
 
-def stocastic_ruler(per_reduction):
+def stocastic_ruler(per_reduction,**params):
     np.random.seed(1234)
     global no_failures
     global obj_value
@@ -145,7 +145,7 @@ def stocastic_ruler(per_reduction):
         if(obj_value!=0 and (len(df)==0 or k>= df.iloc[-1]["k"]) ):
             df = df.append({'k' : k, 'obj_value' : obj_value, 'per_red' : per_reduction},ignore_index = True)
         z = step_1(xk)
-        check,sum_hz = step_2(k, xk, z, a, b)
+        check,sum_hz = step_2(k, xk, z, a, b,**params)
         if (check == 0):
             step_3()
             xk = xk
@@ -181,7 +181,7 @@ for per_red in per_reduction_list:
         no_failures=0
         obj_value=0
         start = time.perf_counter_ns()
-        matrix=stocastic_ruler(per_red)
+        matrix=stocastic_ruler(per_red,  To=T0, n=N, u=U, sigma=Sigma)
         end = time.perf_counter_ns()
         total_time+=end-start
         avg_no_failures+=no_failures
