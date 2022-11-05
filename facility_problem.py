@@ -180,7 +180,7 @@ def stocastic_ruler(per_reduction):
     fz=[]
     while (True):
         if(obj_value!=0 and (len(df)==0 or k>= df.iloc[-1]["k"]) ):
-            df = df.append({'k' : k, 'obj_value' : obj_value, 'per_red' : per_reduction},ignore_index = True)
+            df = pd.concat([df, pd.DataFrame([[k, obj_value, per_reduction]], columns = ["k","obj_value","per_red"])], ignore_index = True)
         z = step_1(xk)
         check,sum_hz = step_2(k, xk, z, a, b)
         if (check == 0):
@@ -194,7 +194,7 @@ def stocastic_ruler(per_reduction):
             obj_value=min(fz)
             if((fz[0]-fz[-1])/fz[0]>=per_reduction/100):
                 if(obj_value!=0 and (len(df)==0 or k>= df.iloc[-1]["k"])):
-                    df = df.append({'k' : k, 'obj_value' : obj_value, 'per_red' : per_reduction},ignore_index = True)
+                    df = pd.concat([df, pd.DataFrame([[k, obj_value, per_reduction]], columns = ["k","obj_value","per_red"])], ignore_index = True)
                 break
         if (k>=limit_k):
             break
@@ -245,12 +245,12 @@ for per_red in per_reduction_list:
     ax.grid(which='minor', color='b', linestyle='-', linewidth=2)
     plt.grid(visible= True,which = "minor", color ="black")
     
-    if (Distribution_type=="Normal_Bimodal"):
+    if (Distribution_type=="Normal_bimodal"):
         plt.title("Distribution: Bimodal, N1~({},{}), N2~({},{}), Weight1={}, Limit_k={}".format(U1,Sigma1,U2,Sigma2,mixing_prob,limit_k))
-        plt.savefig("./images/Bimodal_{}_{}_{}_{}_{}_{}".format(U1,Sigma1,U2,Sigma2,mixing_prob,limit_k)+".png")
+        plt.savefig("./images/Bimodal_{}_{}_{}_{}_{}_{}".format(U1,Sigma1,U2,Sigma2,mixing_prob,limit_k)+".png", bbox_inches='tight')
     else:
         plt.title("Distribution: "+Distribution_type+", %red = "+str(per_red) + "%")
-        plt.savefig("./images/"+Distribution_type +"_"+str(per_red)+".png")
+        plt.savefig("./images/"+Distribution_type +"_"+str(per_red)+".png", bbox_inches='tight')
     plt.close()
 
 sns.relplot(data = df, x="k", kind ="line", y ="obj_value", hue = "per_red", markers = True, palette = "husl")
@@ -261,14 +261,14 @@ plt.text(0, max(df["obj_value"])+0.5, "Initial = {}".format(max(df["obj_value"])
 plt.axhline(y = max(df["obj_value"]), color = "green", linestyle = "--")
 plt.text(0, min(df["obj_value"])+0.5, "Final = {}".format(min(df["obj_value"])))
 plt.axhline(y = min(df["obj_value"]), color = "green", linestyle = "--")
-if (Distribution_type!="Normal_Bimodal"):
+if (Distribution_type!="Normal_bimodal"):
     # ---------------------------------------------------title------------------------------------------
     plt.title("Distribution: "+Distribution_type)
     # ---------------------------------------------------file name------------------------------------------
-    plt.savefig("./images/"+Distribution_type +"_k="+str(limit_k)+".png")
+    plt.savefig("./images/"+Distribution_type +"_k="+str(limit_k)+".png", bbox_inches='tight')
 else:
     # ---------------------------------------------------title------------------------------------------
     plt.title("Distribution: Bimodal, N1~({},{}), N2~({},{}), Weight1={}, Limit_k={}".format(U1,Sigma1,U2,Sigma2,mixing_prob,limit_k))
     # ---------------------------------------------------file name------------------------------------------
-    plt.savefig("./images/Bimodal_{}_{}_{}_{}_{}_{}_k".format(U1,Sigma1,U2,Sigma2,mixing_prob,limit_k)+".png")
+    plt.savefig("./images/Bimodal_{}_{}_{}_{}_{}_{}_k".format(U1,Sigma1,U2,Sigma2,mixing_prob,limit_k)+".png", bbox_inches='tight')
 plt.close()
