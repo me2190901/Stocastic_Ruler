@@ -81,7 +81,7 @@ data_df.to_csv("results.csv")
 os.system("rm temp_input.txt")
 os.system("rm temp_output.txt")
 
-data_df_r = pd.read_csv("results.csv")
+data_df_r = pd.read_csv("bimodal_stochastic_results.csv")
 # For formatting the output
 df = pd.DataFrame(columns = ['Distribution','Per_Redn',"0.2","0.4","0.5","0.6","0.8"])
 
@@ -115,4 +115,4 @@ for i in range(0, len(data_df_r), 25):
     df.loc[len(df)] = ["","","","","","",""]
 
 # save the dataframe to csv file
-df.to_csv('output_formatted.csv', index=False)
+df.to_csv('bimodal_combined_results.csv', index=False)
