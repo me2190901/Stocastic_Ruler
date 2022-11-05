@@ -112,7 +112,7 @@ for i in range(0, len(data_df_r), 25):
 
     df.loc[len(df)] = ["","P-median",obj1,obj2,obj3,obj4,obj5]
     # add an empty row
-    df.loc[len(df)] = ["","","","","","","",""]
+    df.loc[len(df)] = ["","","","","","",""]
 
 # save the dataframe to csv file
 df.to_csv('output_formatted.csv', index=False)
