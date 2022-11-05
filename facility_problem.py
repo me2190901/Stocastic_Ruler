@@ -38,7 +38,7 @@ b = 800
 
 # Defining Neighbourhood Structure(N)
 N_Candidates = define_N_Candidates(N)
-def N(x):
+def Neighbour(x):
     return list(product(N_Candidates[x[0]],N_Candidates[x[1]],N_Candidates[x[2]]))
 
 # Defining Transition Probability Matrix(R)
@@ -83,23 +83,23 @@ def get_h_val( x, **params):
     for t in range(params["To"]):
         total_day = 0                                    ##### total distance travelled by people
         ###### now finding nearest facility and saving total distance travelled in each entry of data
-        for i in range(n):
-            for j in range(n):
+        for i in range(params["n"]):
+            for j in range(params["n"]):
                 demand=-1
                 while(demand<0):
                     # demand = define_demand(u=u,sigma=sigma)  #for normal distribution of demand
                     # demand = define_demand(low=u-3*sigma,high=u+3*sigma)  #for uniform distribution of demand
                     # demand = define_demand(low=u-3*sigma,mode=u      ,high=u+3*sigma)  #for triangular distribution of demand
                     # demand = define_demand(low=u-3*sigma,mode=u-sigma,high=u+3*sigma)  #for triangular distribution of demand (right skewed)
-                    demand = define_demand(low=params["u"]-3*params["sigma"],mode=params["u"]+params["sigma"],high=params["u"]+3*params["u"])  #for triangular distribution of demand (left skewed)
+                    demand = define_demand(**params)  #for triangular distribution of demand (left skewed)
                 total_day += demand*nearest_distance(i,j,x)  ### total distance from i,j th location to nearest facility
-        avg_dist_daywise.append(total_day/(n*n))    
-    return sum(avg_dist_daywise)/T0
+        avg_dist_daywise.append(total_day/(params["n"]*params["n"]))    
+    return sum(avg_dist_daywise)/params["To"]
 
 ##################################Implementing Stochastic Ruler Algorithm############################################
 
 def step_1(x):
-    Nx = N(x)
+    Nx = Neighbour(x)
     P = R
     Represent_Nx=[i for i in range(len(Nx))]
     i = np.random.choice(Represent_Nx, p=R)
@@ -143,7 +143,7 @@ def stocastic_ruler(per_reduction,**params):
     fz=[]
     while (True):
         if(obj_value!=0 and (len(df)==0 or k>= df.iloc[-1]["k"]) ):
-            df = df.append({'k' : k, 'obj_value' : obj_value, 'per_red' : per_reduction},ignore_index = True)
+            df = pd.concat([df, pd.DataFrame([[k, obj_value, per_reduction]], columns = ["k","obj_value","per_red"])], ignore_index = True)
         z = step_1(xk)
         check,sum_hz = step_2(k, xk, z, a, b,**params)
         if (check == 0):
@@ -157,11 +157,13 @@ def stocastic_ruler(per_reduction,**params):
             obj_value=min(fz)
             if((fz[0]-fz[-1])/fz[0]>=per_reduction/100):
                 if(obj_value!=0 and (len(df)==0 or k>= df.iloc[-1]["k"])):
-                    df = df.append({'k' : k, 'obj_value' : obj_value, 'per_red' : per_reduction},ignore_index = True)
+                    # add to dataframe
+                    df = pd.concat([df, pd.DataFrame([[k, obj_value, per_reduction]], columns = ["k","obj_value","per_red"])], ignore_index = True)
+                    # df = df.append({'k' : k, 'obj_value' : obj_value, 'per_red' : per_reduction},ignore_index = True)
                 break
         if (k>=limit_k):
             break
-    matrix  = np.zeros((n,n))
+    matrix  = np.zeros((params["n"],params["n"]))
     for loc in xk:
         matrix[loc[0]][loc[1]]=1
     return matrix
@@ -181,7 +183,7 @@ for per_red in per_reduction_list:
         no_failures=0
         obj_value=0
         start = time.perf_counter_ns()
-        matrix=stocastic_ruler(per_red,  To=T0, n=N, u=U, sigma=Sigma)
+        matrix=stocastic_ruler(per_red,  To=T0, n=N,low=U-3*Sigma,mode=U+Sigma,high=U+3*Sigma)
         end = time.perf_counter_ns()
         total_time+=end-start
         avg_no_failures+=no_failures
