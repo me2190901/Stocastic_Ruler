@@ -6,7 +6,7 @@ import sys
 bin_size = 0.1
 
 def bimodal_distribution(x, **params):
-    return (params["weight1"])*np.exp(-0.5((x-params["u1"])/params["sigma1"])**2)/sqrt(2*pi*params["sigma1"]**2) + (1-params["weight1"])*np.exp(-0.5((x-params["u2"])/params["sigma2"])**2)/sqrt(2*pi*params["sigma2"]**2)
+    return (params["weight1"])*np.exp(-0.5*((x-params["u1"])/params["sigma1"])**2)/sqrt(2*pi*params["sigma1"]**2) + (1-params["weight1"])*np.exp(-0.5*((x-params["u2"])/params["sigma2"])**2)/sqrt(2*pi*params["sigma2"]**2)
 
 global batch_size , i, Batch, curr_weight, curr_per_red
 Batch = []
