@@ -76,10 +76,7 @@ for input_set in bimodel_input_set:
             data = read_file("temp_output.txt")
             out_ = process_output_data(data)
             data_df.loc[len(data_df.index)] = ["Normal_bimodal", U1, Sigma1, U2, Sigma2, mixing_prob, limitk] + out_
-data_df.to_csv("results.csv")
-# delete files created
-os.system("rm temp_input.txt")
-os.system("rm temp_output.txt")
+data_df.to_csv("bimodal_stochastic_results.csv")
 
 data_df_r = pd.read_csv("bimodal_stochastic_results.csv")
 # For formatting the output
