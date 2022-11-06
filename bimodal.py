@@ -14,7 +14,7 @@ batch_size = 50000
 i = batch_size
 curr_weight = -1
 curr_per_red = 0
-o
+
 def create_batch(n, weight1 , u1, sigma1, u2, sigma2):
     x = np.arange(u1-3*sigma1, u2+3*sigma2, bin_size)
     data = [bimodal_distribution( xi, weight1=weight1, u1=u1, u2=u2, sigma1=sigma1, sigma2=sigma2) for xi in x]
