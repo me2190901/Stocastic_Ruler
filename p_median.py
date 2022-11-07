@@ -12,6 +12,8 @@ def find_u_triangle(a,c,b):
     return ((c-a)*(2*c+a)/(3*(b-a)))-((c-b)*(2*c+b)/(3*(b-a)))
 
 def find_u_bimodal(u1,u2,weight):
+    if u1>u2:
+        u1, u2 = u2, u1
     return (weight*u1 + (1-weight)*u2)
 
 # # initiate a dataframe to store the results
