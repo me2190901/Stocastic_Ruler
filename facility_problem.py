@@ -49,7 +49,7 @@ df = pd.DataFrame(columns = ["k","obj_value","per_red"])
 
 # ---------------------Initialization-----------------
 global n
-n = 6
+n = 12
 
 def define_R():
     R = [1/64 for i in range(64)]
@@ -238,10 +238,10 @@ for per_red in per_reduction_list:
     
     plt.imshow(matrix , cmap= "Greens" )                             #### Saving solution of locations
     ax = plt.gca()
-    ax.set_xticks(np.arange(0, 6, 1))
-    ax.set_yticks(np.arange(0, 6, 1))
-    ax.set_xticks(np.arange(-.5, 6, 1), minor=True)
-    ax.set_yticks(np.arange(-.5, 6, 1), minor=True)
+    ax.set_xticks(np.arange(0, n, 1))
+    ax.set_yticks(np.arange(0, n, 1))
+    ax.set_xticks(np.arange(-.5, n, 1), minor=True)
+    ax.set_yticks(np.arange(-.5, n, 1), minor=True)
     ax.grid(which='minor', color='b', linestyle='-', linewidth=2)
     plt.grid(visible= True,which = "minor", color ="black")
     
