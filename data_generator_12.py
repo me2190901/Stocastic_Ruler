@@ -2,81 +2,81 @@ import numpy as np, pandas as pd
 import os
 import p_median_12
 
-# global data_df
-# data_df = pd.DataFrame(columns = ['Distribution_type', 'U', 'Sigma',"U2","Sigma2","mixing_prob", "limitk", "per_red", "Objective_function_value","Solution_locations", "Running_time(sec)" ])
+global data_df
+data_df = pd.DataFrame(columns = ['Distribution_type', 'U', 'Sigma',"U2","Sigma2","mixing_prob", "limitk", "per_red", "Objective_function_value","Solution_locations", "Running_time(sec)" ])
 
-# def make_biomodal_input_command(U1,Sigma1, U2,Sigma2,mixing_prob,limitk, per_red):
-#     if(U1>U2):
-#         U1,U2 = U2,U1 
-#         Sigma1, Sigma2 = Sigma2, Sigma1
-#     temp = ["Normal_bimodal",U1,Sigma1, U2, Sigma2, mixing_prob, limitk, per_red]
-#     temp = list(map(str, temp))
-#     return " ".join(temp)
+def make_biomodal_input_command(U1,Sigma1, U2,Sigma2,mixing_prob,limitk, per_red):
+    if(U1>U2):
+        U1,U2 = U2,U1 
+        Sigma1, Sigma2 = Sigma2, Sigma1
+    temp = ["Normal_bimodal",U1,Sigma1, U2, Sigma2, mixing_prob, limitk, per_red]
+    temp = list(map(str, temp))
+    return " ".join(temp)
 
-# def write_input(text, file_name):
-#     f = open(file_name,'w')
-#     f.write(text)
-#     f.close()
+def write_input(text, file_name):
+    f = open(file_name,'w')
+    f.write(text)
+    f.close()
 
-# def read_file(file_name):
-#     f = open(file_name,'r')
-#     data = sorted([item.strip() for item in f.readlines()])
-#     f.close()
-#     return data
+def read_file(file_name):
+    f = open(file_name,'r')
+    data = sorted([item.strip() for item in f.readlines()])
+    f.close()
+    return data
 
-# def process_solution_string(s):
-#     Locations = []
-#     second_comma = 0
-#     for i in range(len(s)):
-#         if(s[i]==","):
-#             second_comma +=1
-#         if(second_comma==2):
-#             second_comma = i
-#             break
-#     fourth_comma = 0
-#     for i in range(len(s)):
-#         if(s[i]==","):
-#             fourth_comma +=1
-#         if(fourth_comma==4):
-#             fourth_comma = i
-#             break
-#     Locations = [ s[0:second_comma] , s[second_comma+1:fourth_comma] , s[fourth_comma+1:] ]
-#     for i in range(len(Locations)):
-#         Locations[i] = Locations[i].strip().strip("(").strip(")").replace(" ","").replace(","," ")
-#     return "|".join(Locations)
+def process_solution_string(s):
+    Locations = []
+    second_comma = 0
+    for i in range(len(s)):
+        if(s[i]==","):
+            second_comma +=1
+        if(second_comma==2):
+            second_comma = i
+            break
+    fourth_comma = 0
+    for i in range(len(s)):
+        if(s[i]==","):
+            fourth_comma +=1
+        if(fourth_comma==4):
+            fourth_comma = i
+            break
+    Locations = [ s[0:second_comma] , s[second_comma+1:fourth_comma] , s[fourth_comma+1:] ]
+    for i in range(len(Locations)):
+        Locations[i] = Locations[i].strip().strip("(").strip(")").replace(" ","").replace(","," ")
+    return "|".join(Locations)
 
-# def process_output_data(data):
-#     Data = [item.split() for item in data]
-#     print(Data)
-#     obj_value = float(Data[0][-1])
-#     run_time = float(Data[1][-2])
-#     per_red = float(Data[3][-1])
-#     locations = data[-1][18:].strip()[1:-1]
-#     locations = process_solution_string(locations)
-#     return [per_red, obj_value, locations, run_time]
+def process_output_data(data):
+    Data = [item.split() for item in data]
+    print(Data)
+    obj_value = float(Data[0][-1])
+    run_time = float(Data[1][-2])
+    per_red = float(Data[3][-1])
+    locations = data[-1][18:].strip()[1:-1]
+    locations = process_solution_string(locations)
+    return [per_red, obj_value, locations, run_time]
 
-# bimodel_input_set = [[(180,30),(300,60)], [(180,30),(300,50)], [(180,30),(300,40)],[(180,30),(300,30)], [(180,30),(300,20)], [(180,30),(120,30)],[(180,30),(120,20)] ,[(180,30),(120,10)]]
-# bimodel_input_set.extend([[(180,20),(300,60)], [(180,20),(300,50)], [(180,20),(300,40)],[(180,20),(300,30)],[(180,20),(300,20)], [(180,20),(120,30)],[(180,20),(120,20)] ,[(180,20),(120,10)]])
-# bimodel_input_set.extend([[(180,40),(300,60)], [(180,40),(300,50)], [(180,40),(300,40)],[(180,40),(300,30)],[(180,40),(300,20)], [(180,40),(120,30)],[(180,40),(120,20)] ,[(180,40),(120,10)]])
+bimodel_input_set = [[(180,30),(300,60)], [(180,30),(300,50)], [(180,30),(300,40)],[(180,30),(300,30)], [(180,30),(300,20)], [(180,30),(120,30)],[(180,30),(120,20)] ,[(180,30),(120,10)]]
+bimodel_input_set.extend([[(180,20),(300,60)], [(180,20),(300,50)], [(180,20),(300,40)],[(180,20),(300,30)],[(180,20),(300,20)], [(180,20),(120,30)],[(180,20),(120,20)] ,[(180,20),(120,10)]])
+bimodel_input_set.extend([[(180,40),(300,60)], [(180,40),(300,50)], [(180,40),(300,40)],[(180,40),(300,30)],[(180,40),(300,20)], [(180,40),(120,30)],[(180,40),(120,20)] ,[(180,40),(120,10)]])
 
 
-# limitk = 300
+limitk = 300
 
-# for input_set in bimodel_input_set:
-#     U1 = input_set[0][0]
-#     Sigma1 = input_set[0][1]
-#     U2 = input_set[1][0]
-#     Sigma2 = input_set[1][1]
-#     mixing_prob_set = [0.2, 0.4, 0.5 ,0.6, 0.8]
-#     per_red_set = [5,15,25,40,50]
-#     for mixing_prob in mixing_prob_set:
-#         for per_red in per_red_set:
-#             write_input(make_biomodal_input_command(U1,Sigma1, U2, Sigma2, mixing_prob, limitk, per_red),"temp_input.txt" )
-#             os.system("python facility_problem.py < temp_input.txt > temp_output.txt")
-#             data = read_file("temp_output.txt")
-#             out_ = process_output_data(data)
-#             data_df.loc[len(data_df.index)] = ["Normal_bimodal", U1, Sigma1, U2, Sigma2, mixing_prob, limitk] + out_
-# data_df.to_csv("bimodal_stochastic_results_12.csv")
+for input_set in bimodel_input_set:
+    U1 = input_set[0][0]
+    Sigma1 = input_set[0][1]
+    U2 = input_set[1][0]
+    Sigma2 = input_set[1][1]
+    mixing_prob_set = [0.2, 0.4, 0.5 ,0.6, 0.8]
+    per_red_set = [5,15,25,40,50]
+    for mixing_prob in mixing_prob_set:
+        for per_red in per_red_set:
+            write_input(make_biomodal_input_command(U1,Sigma1, U2, Sigma2, mixing_prob, limitk, per_red),"temp_input.txt" )
+            os.system("python facility_problem.py < temp_input.txt > temp_output.txt")
+            data = read_file("temp_output.txt")
+            out_ = process_output_data(data)
+            data_df.loc[len(data_df.index)] = ["Normal_bimodal", U1, Sigma1, U2, Sigma2, mixing_prob, limitk] + out_
+data_df.to_csv("bimodal_stochastic_results_12.csv")
 
 data_df_r = pd.read_csv("bimodal_stochastic_results_12.csv")
 # For formatting the output
