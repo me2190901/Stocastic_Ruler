@@ -49,7 +49,7 @@ df = pd.DataFrame(columns = ["k","obj_value","per_red"])
 
 # ---------------------Initialization-----------------
 global n
-n = 12
+n = 6
 
 def define_R():
     R = [1/64 for i in range(64)]
@@ -63,7 +63,7 @@ def define_N_Candidates():
     return Neighbours
 
 def Mk(k):
-    return math.floor(math.log(k+10, 5))
+    return math.floor(math.log(k+10, 5))+5
 
 def find_x0():
     x0 = list(map(tuple,np.random.randint(0, n,[3,2])))
