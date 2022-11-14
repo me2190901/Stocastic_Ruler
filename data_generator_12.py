@@ -1,6 +1,6 @@
 import numpy as np, pandas as pd
 import os
-import p_median
+import p_median_12
 
 # global data_df
 # data_df = pd.DataFrame(columns = ['Distribution_type', 'U', 'Sigma',"U2","Sigma2","mixing_prob", "limitk", "per_red", "Objective_function_value","Solution_locations", "Running_time(sec)" ])
@@ -76,7 +76,7 @@ import p_median
 #             data = read_file("temp_output.txt")
 #             out_ = process_output_data(data)
 #             data_df.loc[len(data_df.index)] = ["Normal_bimodal", U1, Sigma1, U2, Sigma2, mixing_prob, limitk] + out_
-# data_df.to_csv("bimodal_stochastic_results.csv")
+# data_df.to_csv("bimodal_stochastic_results_12.csv")
 
 data_df_r = pd.read_csv("bimodal_stochastic_results_12.csv")
 # For formatting the output
@@ -96,16 +96,16 @@ for i in range(0, len(data_df_r), 25):
     sigma1=data_df_r.iloc[j,3]
     u2=data_df_r.iloc[j,4]
     sigma2=data_df_r.iloc[j,5]
-    u_1=p_median.find_u_bimodal(u1,u2,0.2)
-    u_2=p_median.find_u_bimodal(u1,u2,0.4)
-    u_3=p_median.find_u_bimodal(u1,u2,0.5)
-    u_4=p_median.find_u_bimodal(u1,u2,0.6)
-    u_5=p_median.find_u_bimodal(u1,u2,0.8)
-    obj1=p_median.solver(36,3,u_1,30,u1=u1,sigma1=sigma1,u2=u2,sigma2=sigma2,weight=0.2)
-    obj2=p_median.solver(36,3,u_2,30,u1=u1,sigma1=sigma1,u2=u2,sigma2=sigma2,weight=0.4)
-    obj3=p_median.solver(36,3,u_3,30,u1=u1,sigma1=sigma1,u2=u2,sigma2=sigma2,weight=0.5)
-    obj4=p_median.solver(36,3,u_4,30,u1=u1,sigma1=sigma1,u2=u2,sigma2=sigma2,weight=0.6)
-    obj5=p_median.solver(36,3,u_5,30,u1=u1,sigma1=sigma1,u2=u2,sigma2=sigma2,weight=0.8)
+    u_1=p_median_12.find_u_bimodal(u1,u2,0.2)
+    u_2=p_median_12.find_u_bimodal(u1,u2,0.4)
+    u_3=p_median_12.find_u_bimodal(u1,u2,0.5)
+    u_4=p_median_12.find_u_bimodal(u1,u2,0.6)
+    u_5=p_median_12.find_u_bimodal(u1,u2,0.8)
+    obj1=p_median_12.solver(12*12,3,u_1,30,u1=u1,sigma1=sigma1,u2=u2,sigma2=sigma2,weight=0.2)
+    obj2=p_median_12.solver(12*12,3,u_2,30,u1=u1,sigma1=sigma1,u2=u2,sigma2=sigma2,weight=0.4)
+    obj3=p_median_12.solver(12*12,3,u_3,30,u1=u1,sigma1=sigma1,u2=u2,sigma2=sigma2,weight=0.5)
+    obj4=p_median_12.solver(12*12,3,u_4,30,u1=u1,sigma1=sigma1,u2=u2,sigma2=sigma2,weight=0.6)
+    obj5=p_median_12.solver(12*12,3,u_5,30,u1=u1,sigma1=sigma1,u2=u2,sigma2=sigma2,weight=0.8)
 
     df.loc[len(df)] = ["","P-median",obj1,obj2,obj3,obj4,obj5]
     # add an empty row
