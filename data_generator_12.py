@@ -60,7 +60,7 @@ bimodel_input_set.extend([[(180,20),(300,60)], [(180,20),(300,50)], [(180,20),(3
 bimodel_input_set.extend([[(180,40),(300,60)], [(180,40),(300,50)], [(180,40),(300,40)],[(180,40),(300,30)],[(180,40),(300,20)], [(180,40),(120,30)],[(180,40),(120,20)] ,[(180,40),(120,10)]])
 
 
-limitk = 300
+limitk = 1000
 
 for input_set in bimodel_input_set:
     U1 = input_set[0][0]
@@ -72,7 +72,7 @@ for input_set in bimodel_input_set:
     for mixing_prob in mixing_prob_set:
         for per_red in per_red_set:
             write_input(make_biomodal_input_command(U1,Sigma1, U2, Sigma2, mixing_prob, limitk, per_red),"temp_input.txt" )
-            os.system("python facility_problem.py < temp_input.txt > temp_output.txt")
+            os.system("python facility_problem_12.py < temp_input.txt > temp_output.txt")
             data = read_file("temp_output.txt")
             out_ = process_output_data(data)
             data_df.loc[len(data_df.index)] = ["Normal_bimodal", U1, Sigma1, U2, Sigma2, mixing_prob, limitk] + out_

@@ -152,6 +152,7 @@ def step_2(k, xk, z, a, b):
     test_count = 0
     while (test_count < total_tests_to_do):
         h_z = get_h_val(z)
+        # print(h_z)
         theta_val = get_theta_val(a, b)
         if (h_z > theta_val):
             return 0,sum_hz  # go to next step i.e. step-3
@@ -265,10 +266,10 @@ if (Distribution_type!="Normal_bimodal"):
     # ---------------------------------------------------title------------------------------------------
     plt.title("Distribution: "+Distribution_type)
     # ---------------------------------------------------file name------------------------------------------
-    plt.savefig("./images/"+Distribution_type +"_k="+str(limit_k)+".png", bbox_inches='tight')
+    plt.savefig("./images_12/"+Distribution_type +"_k="+str(limit_k)+".png", bbox_inches='tight')
 else:
     # ---------------------------------------------------title------------------------------------------
     plt.title("Distribution: Bimodal, N1~({},{}), N2~({},{}), Weight1={}, Limit_k={}".format(U1,Sigma1,U2,Sigma2,mixing_prob,limit_k))
     # ---------------------------------------------------file name------------------------------------------
-    plt.savefig("./images/Bimodal_{}_{}_{}_{}_{}_{}_k".format(U1,Sigma1,U2,Sigma2,mixing_prob,limit_k)+".png", bbox_inches='tight')
+    plt.savefig("./images_12/Bimodal_{}_{}_{}_{}_{}_{}_k".format(U1,Sigma1,U2,Sigma2,mixing_prob,limit_k)+".png", bbox_inches='tight')
 plt.close()
