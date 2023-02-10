@@ -1,4 +1,3 @@
-from matplotlib import markers
 import numpy as np
 import math
 import time
@@ -15,9 +14,7 @@ np.random.seed(1234)
 
 ### Normal U Sigma limit_k per_reduction_values
 ### Uniform U Sigma limit_k per_reduction_values
-### Triangular_Symmetric U Sigma limit_k per_reduction_values
-### Triangular_Left_Skewed U Sigma limit_k per_reduction_values
-### Triangular_Right_Skewed U Sigma limit_k per_reduction_values
+### Triangular Low Mode High limit_k per_reduction_values
 ### Normal_bimodal U1 Sigma1 U2 Sigma2 mixing_prob limit_k per_reduction_values
 
 ### After limit_k value, per_reduction values are present with space separated format, for which computation need to be done
@@ -31,15 +28,19 @@ global Distribution_type
 Distribution_type = Input_list[0]
 
 global limit_k,per_reduction_list
-if(Distribution_type!="Normal_bimodal"):
-    global U, Sigma 
-    U, Sigma, limit_k = int(Input_list[1]) , int(Input_list[2]) , int(Input_list[3])
-    per_reduction_list = list(map(int, Input_list[4:]))
-elif(Distribution_type=="Normal_bimodal"):
+if(Distribution_type=="Normal_bimodal"):
     global U1, Sigma1, U2, Sigma2, mixing_prob, Distribution
     U1, Sigma1, U2, Sigma2, mixing_prob, limit_k = int(Input_list[1]) , int(Input_list[2]) , int(Input_list[3]), int(Input_list[4]) , float(Input_list[5]) , int(Input_list[6])
     per_reduction_list = list(map(int, Input_list[7:]))
     Distribution = bimodal.BimodalDistribution(U1, Sigma1, U2, Sigma2, mixing_prob)
+elif(Distribution_type=="Triangular"):
+    global Low, Mode, High
+    Low, Mode, High, limit_k = int(Input_list[1]) , int(Input_list[2]) , int(Input_list[3]) , int(Input_list[4])
+    per_reduction_list = list(map(int, Input_list[5:]))
+elif(Distribution_type!="Normal_bimodal"):
+    global U, Sigma 
+    U, Sigma, limit_k = int(Input_list[1]) , int(Input_list[2]) , int(Input_list[3])
+    per_reduction_list = list(map(int, Input_list[4:]))
 else:
     print("Incorrect_Input")
 
@@ -104,7 +105,7 @@ def define_demand(**para):
         return np.random.normal(para["u"], para["sigma"], size=1)[0] #for normal distribution of demand
     elif(Distribution_type=="Uniform"):
         return np.random.uniform(para["low"], para["high"], size=1)[0] #for uniform distribution of demand
-    elif(Distribution_type in ["Triangular_Symmetric","Triangular_Left_Skewed" ,"Triangular_Right_Skewed" ] ):
+    elif(Distribution_type=="Triangular"):
         return np.random.triangular(para["low"], para["mode"], para["high"], size=1)[0] #for triangular distribution of demand
     elif(Distribution_type=="Normal_bimodal"):
         return Distribution.get_sample()[0] #for bimodal distribution of demand
@@ -131,12 +132,8 @@ def get_h_val( x ):
                         demand = define_demand(u=U,sigma=Sigma)   #for normal distribution of demand
                     elif(Distribution_type=="Uniform"):
                         demand = define_demand(low=U-3*Sigma,high=U+3*Sigma)  #for uniform distribution of demand
-                    elif(Distribution_type=="Triangular_Symmetric"):
-                        demand = define_demand(low=U-3*Sigma,mode=U,high=U+3*Sigma)  #for triangular distribution of demand
-                    elif(Distribution_type=="Triangular_Left_Skewed"):
-                        demand = define_demand(low=U-3*Sigma,mode=U+Sigma,high=U+3*Sigma)  #for triangular distribution of demand (left skewed)
-                    elif(Distribution_type=="Triangular_Right_Skewed"):
-                        demand = define_demand(low=U-3*Sigma,mode=U-Sigma,high=U+3*Sigma)  #for triangular distribution of demand (right skewed)
+                    elif(Distribution_type=="Triangular"):
+                        demand = define_demand(low=Low,mode=Mode,high=High)  #for triangular distribution of demand
                     elif(Distribution_type=="Normal_bimodal"):
                         demand = define_demand() ## for bimodal distribution of demand
                 total_day += demand*nearest_distance(i,j,x)  ### total distance from i,j th location to nearest facility
@@ -166,7 +163,7 @@ def step_2(k, xk, z, a, b):
     test_count = 0
     while (test_count < total_tests_to_do):
         h_z = get_h_val(z)
-        print(h_z,k)
+        # print(h_z,k)
         theta_val = get_theta_val(a, b)
         if (h_z > theta_val):
             return 0,sum_hz  # go to next step i.e. step-3
@@ -257,6 +254,9 @@ for per_red in per_reduction_list:
     if (Distribution_type=="Normal_bimodal"):
         plt.title("Distribution: Bimodal, N1~({},{}), N2~({},{}), Weight1={}, Limit_k={}".format(U1,Sigma1,U2,Sigma2,mixing_prob,limit_k))
         plt.savefig("./images_12/Bimodal_{}_{}_{}_{}_{}_{}".format(U1,Sigma1,U2,Sigma2,mixing_prob,limit_k)+".png", bbox_inches='tight')
+    elif(Distribution_type=="Triangular"):
+        plt.title("Distribution: Triangular, low={}, mode={}, high={}, Limit_k={}".format(Low,Mode,High,limit_k))
+        plt.savefig("./images_12/Triangular_{}_{}_{}_{}".format(Low,Mode,High,limit_k)+".png", bbox_inches='tight')
     else:
         plt.title("Distribution: "+Distribution_type+", %red = "+str(per_red) + "%")
         plt.savefig("./images_12/"+Distribution_type+"_"+str(per_red)+".png", bbox_inches='tight')
@@ -270,15 +270,21 @@ plt.text(0, max(df["obj_value"])+0.5, "Initial = {}".format(max(df["obj_value"])
 plt.axhline(y = max(df["obj_value"]), color = "green", linestyle = "--")
 plt.text(0, min(df["obj_value"])+0.5, "Final = {}".format(min(df["obj_value"])))
 plt.axhline(y = min(df["obj_value"]), color = "green", linestyle = "--")
-if (Distribution_type!="Normal_bimodal"):
+if (Distribution_type=="Normal_bimodal"):
+        # ---------------------------------------------------title------------------------------------------
+    plt.title("Distribution: Bimodal, N1~({},{}), N2~({},{}), Weight1={}, Limit_k={}".format(U1,Sigma1,U2,Sigma2,mixing_prob,limit_k))
+    # ---------------------------------------------------file name------------------------------------------
+    plt.savefig("./images_12/Bimodal_{}_{}_{}_{}_{}_{}_k".format(U1,Sigma1,U2,Sigma2,mixing_prob,limit_k)+".png", bbox_inches='tight')
+elif(Distribution_type=="Triangular"):
+    # ---------------------------------------------------title------------------------------------------
+    plt.title("Distribution: Triangular, low={}, mode={}, high={}, Limit_k={}".format(Low,Mode,High,limit_k))
+    # ---------------------------------------------------file name------------------------------------------
+    plt.savefig("./images_12/Triangular_{}_{}_{}_{}_k".format(Low,Mode,High,limit_k)+".png", bbox_inches='tight')
+else:
     # ---------------------------------------------------title------------------------------------------
     plt.title("Distribution: "+Distribution_type)
     # ---------------------------------------------------file name------------------------------------------
     plt.savefig("./images_12/"+Distribution_type +"_k="+str(limit_k)+".png", bbox_inches='tight')
-else:
-    # ---------------------------------------------------title------------------------------------------
-    plt.title("Distribution: Bimodal, N1~({},{}), N2~({},{}), Weight1={}, Limit_k={}".format(U1,Sigma1,U2,Sigma2,mixing_prob,limit_k))
-    # ---------------------------------------------------file name------------------------------------------
-    plt.savefig("./images_12/Bimodal_{}_{}_{}_{}_{}_{}_k".format(U1,Sigma1,U2,Sigma2,mixing_prob,limit_k)+".png", bbox_inches='tight')
 plt.close()
-# df.to_csv("./iterate_k_results/Distribution_"+Distribution_type+"_"+str(U1)+"_"+str(Sigma1)+"_"+str(U2)+"_"+str(Sigma2)+"_"+str(mixing_prob)+".csv", index=False)
+# df.to_csv("./iterate_k_results/Distribution_"+Distribution_type+"_"+str(Low)+"_"+str(Mode)+"_"+str(High)+"_"+str(limit_k)+".csv", index=False)
+df.to_csv("./iterate_k_results/Distribution_"+Distribution_type+"_"+str(U1)+"_"+str(Sigma1)+"_"+str(U2)+"_"+str(Sigma2)+"_"+str(mixing_prob)+".csv", index=False)
