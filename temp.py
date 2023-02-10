@@ -13,32 +13,32 @@ import bimodal
 # p_median_left_skewed = p_median_12.solver(12*12, 3, u, 30)
 
 # # from every row in the data_df substract the objective function value from the p_median_symmetric
-# data_df = pd.read_csv("Distribution_Normal.csv")
+# data_df = pd.read_csv("./iterate_k_results/Distribution_Normal.csv")
 # data_df["obj_value"] = data_df["obj_value"].apply(lambda x: (x - p_median_symmetric)*100/p_median_symmetric)
 # data_df.rename(columns={"obj_value": "per_diff"}, inplace=True)
 # # plot the data as a line plot with the "per_diff" column as the y axis and the "per_red" column as the x axis
 # plt.plot(data_df["k"], data_df["per_diff"])
 
-# data_df = pd.read_csv("Distribution_Uniform.csv")
+# data_df = pd.read_csv("./iterate_k_results/Distribution_Uniform.csv")
 # data_df["obj_value"] = data_df["obj_value"].apply(lambda x: (x - p_median_symmetric)*100/p_median_symmetric)
 # data_df.rename(columns={"obj_value": "per_diff"}, inplace=True)
 # # plot the data as a line plot with the "per_diff" column as the y axis and the "per_red" column as the x axis
 # plt.plot(data_df["k"], data_df["per_diff"])
 
-# data_df = pd.read_csv("Distribution_Triangular_Symmetric.csv")
+# data_df = pd.read_csv("./iterate_k_results/Distribution_Triangular_Symmetric.csv")
 # data_df["obj_value"] = data_df["obj_value"].apply(lambda x: (x - p_median_symmetric)*100/p_median_symmetric)
 # data_df.rename(columns={"obj_value": "per_diff"}, inplace=True)
 # # plot the data as a line plot with the "per_diff" column as the y axis and the "per_red" column as the x axis
 # plt.plot(data_df["k"], data_df["per_diff"])
 
 
-# data_df = pd.read_csv("Distribution_Triangular_Right_Skewed.csv")
+# data_df = pd.read_csv("./iterate_k_results/Distribution_Triangular_Right_Skewed.csv")
 # data_df["obj_value"] = data_df["obj_value"].apply(lambda x: (x - p_median_right_skewed)*100/p_median_right_skewed)
 # data_df.rename(columns={"obj_value": "per_diff"}, inplace=True)
 # # plot the data as a line plot with the "per_diff" column as the y axis and the "per_red" column as the x axis
 # plt.plot(data_df["k"], data_df["per_diff"])
 
-# data_df = pd.read_csv("Distribution_Triangular_Left_Skewed.csv")
+# data_df = pd.read_csv("./iterate_k_results/Distribution_Triangular_Left_Skewed.csv")
 # data_df["obj_value"] = data_df["obj_value"].apply(lambda x: (x - p_median_left_skewed)*100/p_median_left_skewed)
 # data_df.rename(columns={"obj_value": "per_diff"}, inplace=True)
 # # plot the data as a line plot with the "per_diff" column as the y axis and the "per_red" column as the x axis
@@ -63,50 +63,15 @@ u1=180
 sigma1=30
 u2=300
 sigma2=30
-
-u_20= p_median_12.find_u_bimodal(u1, u2, 0.2)
-p_median_20 = p_median_12.solver(12*12, 3, u_20, 30)
-u_40 = p_median_12.find_u_bimodal(u1, u2, 0.4)
-p_median_40 = p_median_12.solver(12*12, 3, u_40, 30)
-u_50 = p_median_12.find_u_bimodal(u1, u2, 0.5)
-p_median_50 = p_median_12.solver(12*12, 3, u_50, 30)
-u_60 = p_median_12.find_u_bimodal(u1, u2, 0.6)
-p_median_60 = p_median_12.solver(12*12, 3, u_60, 30)
-u_80 = p_median_12.find_u_bimodal(u1, u2, 0.8)
-p_median_80 = p_median_12.solver(12*12, 3, u_80, 30)
-# p_median_20 =1
-# p_median_40 = 1
-# p_median_50 = 1
-# p_median_60 = 1
-# p_median_80 = 1
-
-
-# from every row in the data_df substract the objective function value from the p_median_symmetric
-data_df = pd.read_csv("Distribution_Normal_bimodal_180_30_300_30_0.2.csv")
-data_df["obj_value"] = data_df["obj_value"].apply(lambda x: (x - p_median_20)*100/p_median_20)
-data_df.rename(columns={"obj_value": "per_diff"}, inplace=True)
-# plot the data as a line plot with the "per_diff" column as the y axis and the "per_red" column as the x axis
-plt.plot(data_df["k"], data_df["per_diff"])
-
-data_df = pd.read_csv("Distribution_Normal_bimodal_180_30_300_30_0.4.csv")
-data_df["obj_value"] = data_df["obj_value"].apply(lambda x: (x - p_median_40)*100/p_median_40)
-data_df.rename(columns={"obj_value": "per_diff"}, inplace=True)
-plt.plot(data_df["k"], data_df["per_diff"])
-
-data_df = pd.read_csv("Distribution_Normal_bimodal_180_30_300_30_0.5.csv")
-data_df["obj_value"] = data_df["obj_value"].apply(lambda x: (x - p_median_50)*100/p_median_50)
-data_df.rename(columns={"obj_value": "per_diff"}, inplace=True)
-plt.plot(data_df["k"], data_df["per_diff"])
-
-data_df = pd.read_csv("Distribution_Normal_bimodal_180_30_300_30_0.6.csv")
-data_df["obj_value"] = data_df["obj_value"].apply(lambda x: (x - p_median_60)*100/p_median_60)
-data_df.rename(columns={"obj_value": "per_diff"}, inplace=True)
-plt.plot(data_df["k"], data_df["per_diff"])
-
-data_df = pd.read_csv("Distribution_Normal_bimodal_180_30_300_30_0.8.csv")
-data_df["obj_value"] = data_df["obj_value"].apply(lambda x: (x - p_median_80)*100/p_median_80)
-data_df.rename(columns={"obj_value": "per_diff"}, inplace=True)
-plt.plot(data_df["k"], data_df["per_diff"])
+mixing_prob_set = [0.2, 0.4, 0.5, 0.6, 0.8]
+for mixing_prob in mixing_prob_set:
+    u = bimodal.find_u_bimodal(u1, u2, mixing_prob)
+    p_median_bimodal = p_median_12.solver(12*12, 3, u, 30)
+    data_df = pd.read_csv("./iterate_k_results/Distribution_Normal_bimodal_{}_{}_{}_{}_{}.csv".format(u1, sigma1, u2, sigma2, mixing_prob))
+    data_df["obj_value"] = data_df["obj_value"].apply(lambda x: (x - p_median_bimodal)*100/p_median_bimodal)
+    data_df.rename(columns={"obj_value": "per_diff"}, inplace=True)
+    # plot the data as a line plot with the "per_diff" column as the y axis and the "per_red" column as the x axis
+    plt.plot(data_df["k"], data_df["per_diff"])
 
 # set the x and y labels
 plt.xlabel("Number of Iterations(k)")
@@ -116,7 +81,7 @@ plt.ylabel("% Difference between Stochastic and Deterministic")
 # set different legends for the plot
 def get_skewness(u1, sigma1, u2, sigma2, weight1):
     return weight1*(3*u1*(sigma1**2)+u1**3)+(1-weight1)*(3*u2*(sigma2**2)+u2**3)
-legend_list = ["$\gamma={}$,$\\alpha={}$,$\mu_1={}$,$\sigma_1={}$,$\mu_2={}$,$\sigma_2={}$".format(get_skewness(u1, sigma1, u2, sigma2, i),i,u1,sigma1,u2,sigma2) for i in [0.2, 0.4, 0.5, 0.6, 0.8]]
+legend_list = ["$\gamma={}$,$\\alpha={}$,$\mu_1={}$,$\sigma_1={}$,$\mu_2={}$,$\sigma_2={}$".format(get_skewness(u1, sigma1, u2, sigma2, i),i,u1,sigma1,u2,sigma2) for i in mixing_prob_set]
 # change location of the legend to not overlap with the plot
 plt.legend(loc='upper right')
 plt.legend(legend_list)
