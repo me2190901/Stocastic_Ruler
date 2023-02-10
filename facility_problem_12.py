@@ -36,15 +36,23 @@ if(Distribution_type!="Normal_bimodal"):
     U, Sigma, limit_k = int(Input_list[1]) , int(Input_list[2]) , int(Input_list[3])
     per_reduction_list = list(map(int, Input_list[4:]))
 elif(Distribution_type=="Normal_bimodal"):
-    global U1, Sigma1, U2, Sigma2, mixing_prob
+    global U1, Sigma1, U2, Sigma2, mixing_prob, Distribution
     U1, Sigma1, U2, Sigma2, mixing_prob, limit_k = int(Input_list[1]) , int(Input_list[2]) , int(Input_list[3]), int(Input_list[4]) , float(Input_list[5]) , int(Input_list[6])
     per_reduction_list = list(map(int, Input_list[7:]))
+    Distribution = bimodal.BimodalDistribution(U1, Sigma1, U2, Sigma2, mixing_prob)
 else:
     print("Incorrect_Input")
 
 global df
+global no_failures
+global obj_value
+global per_reduction
+global k
 df = pd.DataFrame(columns = ["k","obj_value","per_red"])
-
+no_failures=0
+obj_value=0
+per_reduction=0
+k=0
 
 
 # ---------------------Initialization-----------------
@@ -63,7 +71,7 @@ def define_N_Candidates():
     return Neighbours
 
 def Mk(k):
-    return math.floor(math.log(k+10, 5))+5
+    return math.floor(math.log(k+10, 5))
 
 def find_x0():
     x0 = list(map(tuple,np.random.randint(0, n,[3,2])))
@@ -71,8 +79,8 @@ def find_x0():
 
 # Defining parameters for Theta
 global a, b
-a = 1000
-b = 1400
+a = 700
+b = 1200
 
 # Defining Neighbourhood Structure(N)
 N_Candidates = define_N_Candidates()
@@ -98,6 +106,8 @@ def define_demand(**para):
         return np.random.uniform(para["low"], para["high"], size=1)[0] #for uniform distribution of demand
     elif(Distribution_type in ["Triangular_Symmetric","Triangular_Left_Skewed" ,"Triangular_Right_Skewed" ] ):
         return np.random.triangular(para["low"], para["mode"], para["high"], size=1)[0] #for triangular distribution of demand
+    elif(Distribution_type=="Normal_bimodal"):
+        return Distribution.get_sample()[0] #for bimodal distribution of demand
 
 def nearest_distance(i,j,x):
     ### nearest travelling needed from (i,j) to list of locations in x
@@ -122,13 +132,13 @@ def get_h_val( x ):
                     elif(Distribution_type=="Uniform"):
                         demand = define_demand(low=U-3*Sigma,high=U+3*Sigma)  #for uniform distribution of demand
                     elif(Distribution_type=="Triangular_Symmetric"):
-                        demand = define_demand(low=U-3*Sigma,mode=U      ,high=U+3*Sigma)  #for triangular distribution of demand
+                        demand = define_demand(low=U-3*Sigma,mode=U,high=U+3*Sigma)  #for triangular distribution of demand
                     elif(Distribution_type=="Triangular_Left_Skewed"):
                         demand = define_demand(low=U-3*Sigma,mode=U+Sigma,high=U+3*Sigma)  #for triangular distribution of demand (left skewed)
                     elif(Distribution_type=="Triangular_Right_Skewed"):
                         demand = define_demand(low=U-3*Sigma,mode=U-Sigma,high=U+3*Sigma)  #for triangular distribution of demand (right skewed)
                     elif(Distribution_type=="Normal_bimodal"):
-                        demand = bimodal.get_bimodal_sample(mixing_prob, per_red, U1, Sigma1, U2, Sigma2,n*n*T0*limit_k) ## for bimodal distribution of demand
+                        demand = define_demand() ## for bimodal distribution of demand
                 total_day += demand*nearest_distance(i,j,x)  ### total distance from i,j th location to nearest facility
         avg_dist_daywise.append(total_day/(n*n))    
     return sum(avg_dist_daywise)/T0
@@ -144,7 +154,11 @@ def step_1(x):
 
 def step_3():
     global k
+    global df
+    global obj_value
     k = k + 1
+    if(obj_value!=0):
+        df = pd.concat([df, pd.DataFrame([[k, obj_value, per_reduction]], columns = ["k","obj_value","per_red"])], ignore_index = True)
 
 def step_2(k, xk, z, a, b):
     sum_hz=0
@@ -152,7 +166,7 @@ def step_2(k, xk, z, a, b):
     test_count = 0
     while (test_count < total_tests_to_do):
         h_z = get_h_val(z)
-        # print(h_z)
+        print(h_z,k)
         theta_val = get_theta_val(a, b)
         if (h_z > theta_val):
             return 0,sum_hz  # go to next step i.e. step-3
@@ -163,48 +177,42 @@ def step_2(k, xk, z, a, b):
     sum_hz=sum_hz/total_tests_to_do
     return 1, sum_hz
 
-global no_failures
-global obj_value
-no_failures=0
-obj_value=0
-
-def stocastic_ruler(per_reduction):
+def stocastic_ruler():
     np.random.seed(1234)
     global no_failures
     global obj_value
     global df
+    global per_reduction
     no_failures=0
     obj_value=0
     # Defining X0
     xk = find_x0()
     z = None
     fz=[]
+    optimized_z=[]
     while (True):
-        if(obj_value!=0 and (len(df)==0 or k>= df.iloc[-1]["k"]) ):
-            df = pd.concat([df, pd.DataFrame([[k, obj_value, per_reduction]], columns = ["k","obj_value","per_red"])], ignore_index = True)
         z = step_1(xk)
         check,sum_hz = step_2(k, xk, z, a, b)
         if (check == 0):
-            step_3()
             xk = xk
             no_failures+=1
-        else:
             step_3()
+        else:
             xk = z
             fz.append(sum_hz)
             obj_value=min(fz)
+            if(sum_hz==obj_value):
+                optimized_z=z
+            step_3()
             if((fz[0]-fz[-1])/fz[0]>=per_reduction/100):
-                if(obj_value!=0 and (len(df)==0 or k>= df.iloc[-1]["k"])):
-                    df = pd.concat([df, pd.DataFrame([[k, obj_value, per_reduction]], columns = ["k","obj_value","per_red"])], ignore_index = True)
                 break
         if (k>=limit_k):
             break
-    print("Solution_locations",xk)
+    print("Solution_locations",optimized_z)
     matrix  = np.zeros((n,n))
-    for loc in xk:
+    for loc in optimized_z:
         matrix[loc[0]][loc[1]]=1
     return matrix
-
 
 
 ################--------- Creating Results ------------------------
@@ -213,7 +221,7 @@ total_time=0
 avg_no_failures=0
 avg_obj_value=0
 for per_red in per_reduction_list:
-    global k
+    per_reduction=per_red
     k=0
     total_time=0
     avg_no_failures=0
@@ -224,7 +232,7 @@ for per_red in per_reduction_list:
         no_failures=0
         obj_value=0
         start = time.perf_counter_ns()
-        matrix=stocastic_ruler(per_red)
+        matrix=stocastic_ruler()
         end = time.perf_counter_ns()
         total_time+=end-start
         avg_no_failures+=no_failures
@@ -251,7 +259,7 @@ for per_red in per_reduction_list:
         plt.savefig("./images_12/Bimodal_{}_{}_{}_{}_{}_{}".format(U1,Sigma1,U2,Sigma2,mixing_prob,limit_k)+".png", bbox_inches='tight')
     else:
         plt.title("Distribution: "+Distribution_type+", %red = "+str(per_red) + "%")
-        plt.savefig("./images_12/"+Distribution_type +"_"+str(per_red)+".png", bbox_inches='tight')
+        plt.savefig("./images_12/"+Distribution_type+"_"+str(per_red)+".png", bbox_inches='tight')
     plt.close()
 
 sns.relplot(data = df, x="k", kind ="line", y ="obj_value", hue = "per_red", markers = True, palette = "husl")
@@ -273,3 +281,4 @@ else:
     # ---------------------------------------------------file name------------------------------------------
     plt.savefig("./images_12/Bimodal_{}_{}_{}_{}_{}_{}_k".format(U1,Sigma1,U2,Sigma2,mixing_prob,limit_k)+".png", bbox_inches='tight')
 plt.close()
+# df.to_csv("./iterate_k_results/Distribution_"+Distribution_type+"_"+str(U1)+"_"+str(Sigma1)+"_"+str(U2)+"_"+str(Sigma2)+"_"+str(mixing_prob)+".csv", index=False)

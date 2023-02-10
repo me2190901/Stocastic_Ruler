@@ -5,6 +5,16 @@ import p_median_12
 global data_df
 data_df = pd.DataFrame(columns = ['Distribution_type', 'U', 'Sigma',"U2","Sigma2","mixing_prob", "limitk", "per_red", "Objective_function_value","Solution_locations", "Running_time(sec)" ])
 
+bimodel_input_set = [[(180,30),(300,60)], [(180,30),(300,50)], [(180,30),(300,40)],[(180,30),(300,30)], [(180,30),(300,20)], [(180,30),(120,30)],[(180,30),(120,20)] ,[(180,30),(120,10)]]
+bimodel_input_set.extend([[(180,20),(300,60)], [(180,20),(300,50)], [(180,20),(300,40)],[(180,20),(300,30)],[(180,20),(300,20)], [(180,20),(120,30)],[(180,20),(120,20)] ,[(180,20),(120,10)]])
+bimodel_input_set.extend([[(180,40),(300,60)], [(180,40),(300,50)], [(180,40),(300,40)],[(180,40),(300,30)],[(180,40),(300,20)], [(180,40),(120,30)],[(180,40),(120,20)] ,[(180,40),(120,10)]])
+mixing_prob_set = [0.2, 0.4, 0.5 ,0.6, 0.8]
+per_red_set = [5,15,25,40,50]
+n=12
+T0=30
+N_locations = 3
+limitk = 1000
+
 def make_biomodal_input_command(U1,Sigma1, U2,Sigma2,mixing_prob,limitk, per_red):
     if(U1>U2):
         U1,U2 = U2,U1 
@@ -55,20 +65,12 @@ def process_output_data(data):
     locations = process_solution_string(locations)
     return [per_red, obj_value, locations, run_time]
 
-bimodel_input_set = [[(180,30),(300,60)], [(180,30),(300,50)], [(180,30),(300,40)],[(180,30),(300,30)], [(180,30),(300,20)], [(180,30),(120,30)],[(180,30),(120,20)] ,[(180,30),(120,10)]]
-bimodel_input_set.extend([[(180,20),(300,60)], [(180,20),(300,50)], [(180,20),(300,40)],[(180,20),(300,30)],[(180,20),(300,20)], [(180,20),(120,30)],[(180,20),(120,20)] ,[(180,20),(120,10)]])
-bimodel_input_set.extend([[(180,40),(300,60)], [(180,40),(300,50)], [(180,40),(300,40)],[(180,40),(300,30)],[(180,40),(300,20)], [(180,40),(120,30)],[(180,40),(120,20)] ,[(180,40),(120,10)]])
-
-
-limitk = 1000
 
 for input_set in bimodel_input_set:
     U1 = input_set[0][0]
     Sigma1 = input_set[0][1]
     U2 = input_set[1][0]
     Sigma2 = input_set[1][1]
-    mixing_prob_set = [0.2, 0.4, 0.5 ,0.6, 0.8]
-    per_red_set = [5,15,25,40,50]
     for mixing_prob in mixing_prob_set:
         for per_red in per_red_set:
             write_input(make_biomodal_input_command(U1,Sigma1, U2, Sigma2, mixing_prob, limitk, per_red),"temp_input.txt" )
@@ -80,7 +82,7 @@ data_df.to_csv("bimodal_stochastic_results_12.csv")
 
 data_df_r = pd.read_csv("bimodal_stochastic_results_12.csv")
 # For formatting the output
-df = pd.DataFrame(columns = ['Distribution','Per_Redn',"0.2","0.4","0.5","0.6","0.8"])
+df = pd.DataFrame(columns = ['Distribution','Per_Redn']+[str(i) for i in mixing_prob_set])
 
 # iterate over the data and create a dataframe
 for i in range(0, len(data_df_r), 25):
@@ -96,18 +98,13 @@ for i in range(0, len(data_df_r), 25):
     sigma1=data_df_r.iloc[j,3]
     u2=data_df_r.iloc[j,4]
     sigma2=data_df_r.iloc[j,5]
-    u_1=p_median_12.find_u_bimodal(u1,u2,0.2)
-    u_2=p_median_12.find_u_bimodal(u1,u2,0.4)
-    u_3=p_median_12.find_u_bimodal(u1,u2,0.5)
-    u_4=p_median_12.find_u_bimodal(u1,u2,0.6)
-    u_5=p_median_12.find_u_bimodal(u1,u2,0.8)
-    obj1=p_median_12.solver(12*12,3,u_1,30,u1=u1,sigma1=sigma1,u2=u2,sigma2=sigma2,weight=0.2)
-    obj2=p_median_12.solver(12*12,3,u_2,30,u1=u1,sigma1=sigma1,u2=u2,sigma2=sigma2,weight=0.4)
-    obj3=p_median_12.solver(12*12,3,u_3,30,u1=u1,sigma1=sigma1,u2=u2,sigma2=sigma2,weight=0.5)
-    obj4=p_median_12.solver(12*12,3,u_4,30,u1=u1,sigma1=sigma1,u2=u2,sigma2=sigma2,weight=0.6)
-    obj5=p_median_12.solver(12*12,3,u_5,30,u1=u1,sigma1=sigma1,u2=u2,sigma2=sigma2,weight=0.8)
+    l=["","P-median"]
+    for mixing_prob in mixing_prob_set:
+        u_1=p_median_12.find_u_bimodal(u1,u2,mixing_prob)
+        obj1=p_median_12.solver(n*n,N_locations,u_1,T0,u1=u1,sigma1=sigma1,u2=u2,sigma2=sigma2,weight=mixing_prob)
+        l.append(obj1)
 
-    df.loc[len(df)] = ["","P-median",obj1,obj2,obj3,obj4,obj5]
+    df.loc[len(df)] = l
     # add an empty row
     df.loc[len(df)] = ["","","","","","",""]
 

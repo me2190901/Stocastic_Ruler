@@ -2,54 +2,51 @@ import numpy as np
 import matplotlib.pyplot as plt
 from math import ceil, floor, sqrt, pi
 import sys
+import seaborn as sns
 
-bin_size = 0.1
+class BimodalDistribution:
+    bin_size = 0.1
+    u1=0
+    u2=0
+    sigma1=0
+    sigma2=0
+    weight1=0
+    data = []
+    x=[]
+    def __init__(self, u1, sigma1, u2, sigma2, weight1):
+        np.random.seed(1234)
+        self.u1 = u1
+        self.u2 = u2
+        self.sigma1 = sigma1
+        self.sigma2 = sigma2
+        self.weight1 = weight1
+        self.x = np.arange(self.u1-3*self.sigma1, self.u2+3*self.sigma2, self.bin_size)
+        self.data = [self.bimodal_distribution(xi) for xi in self.x]
+
+    def bimodal_distribution(self, x):
+        return (self.weight1)*np.exp(-0.5*((x-self.u1)/self.sigma1)**2)/sqrt(2*pi*self.sigma1**2) + (1-self.weight1)*np.exp(-0.5*((x-self.u2)/self.sigma2)**2)/sqrt(2*pi*self.sigma2**2)
+
+    def get_sample(self, n=1):
+        # generate sample with probability distribution as bimodal_distribution
+        bin_nos = np.random.choice( range(floor((self.u2-self.u1+3*self.sigma2+3*self.sigma1)/self.bin_size)), n, p=self.data/np.sum(self.data))
+        # take uniform random sample from the bin
+        sample = []
+        for bin_no in bin_nos:
+            sample.append(np.random.uniform((self.u1-3*self.sigma1)+bin_no*self.bin_size, self.u1-3*self.sigma1+(bin_no+1)*self.bin_size))
+        return sample
+
+    def get_skewness(self):
+        return self.weight1*(3*self.u1*(self.sigma1**2)+self.u1**3)+(1-self.weight1)*(3*self.u2*(self.sigma2**2)+self.u2**3)
 
 def bimodal_distribution(x, **params):
     return (params["weight1"])*np.exp(-0.5*((x-params["u1"])/params["sigma1"])**2)/sqrt(2*pi*params["sigma1"]**2) + (1-params["weight1"])*np.exp(-0.5*((x-params["u2"])/params["sigma2"])**2)/sqrt(2*pi*params["sigma2"]**2)
 
-global batch_size , i, Batch, curr_weight, curr_per_red
-Batch = []
-batch_size = 50000
-i = batch_size
-curr_weight = -1
-curr_per_red = 0
+if __name__ == "__main__":
+    weight1 = 0.8
+    u1 = 180
+    u2 = 180
+    sigma1 = 30
+    sigma2 = 30
 
-def create_batch(n, weight1 , u1, sigma1, u2, sigma2):
-    x = np.arange(u1-3*sigma1, u2+3*sigma2, bin_size)
-    data = [bimodal_distribution( xi, weight1=weight1, u1=u1, u2=u2, sigma1=sigma1, sigma2=sigma2) for xi in x]
-    # generate sample with probability distribution as bimodal_distribution
-    bin_nos = np.random.choice( range(floor((u2-u1+3*sigma2+3*sigma1)/bin_size)), n, p=data/np.sum(data))
-    # take uniform random sample from the bin
-    sample = []
-    for bin_no in bin_nos:
-        sample.append(np.random.uniform((u1-3*sigma1)+bin_no*bin_size, u1-3*sigma1+(bin_no+1)*bin_size))
-    return sample
-
-def get_bimodal_sample(mixing_prob, per_red , u1 , sigma1 , u2, sigma2, Batch_Size):
-    global batch_size , i, Batch, curr_weight, curr_per_red
-    if(mixing_prob!=curr_weight or curr_per_red!=per_red):
-        print("SEED-RESETING..........", file= sys.stderr)
-        curr_weight = mixing_prob
-        curr_per_red = per_red
-        np.random.seed(1234)
-        batch_size = Batch_Size
-        i = batch_size
-    
-    if(i==Batch_Size):
-        print("Creating a Batch....", file= sys.stderr)
-        Batch = create_batch(batch_size, mixing_prob, u1, sigma1, u2, sigma2)
-        i = 1
-        return Batch[0]
-    else:
-        i = i + 1
-        return Batch[i-1]
-
-# weight1 = 0.5
-# u1 = 180
-# u2 = 300
-# sigma1 = 30
-# sigma2 = 50
-# data = bimodal_sample(5000, weight1, u1, sigma1, u2, sigma2)
-# plt.hist(data, bins=100)
-# plt.show()
+    bimodal= BimodalDistribution(u1, sigma1, u2, sigma2, weight1)
+    print(bimodal.get_skewness())

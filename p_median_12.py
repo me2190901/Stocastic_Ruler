@@ -66,30 +66,38 @@ def solver(n,p,u,T0,**params):
     # # append the results to the dataframe
     # df.loc[len(df)] = [params["u1"],params["sigma1"],params["u2"],params["sigma2"],params["weight"],obj,(end_time-start_time)/1000000000]
 
-    plt.imshow(output_mat , cmap= "Greens" )
-    ax = plt.gca()
-    ax.set_xticks(np.arange(0, round(pow(n,0.5)), 1))
-    ax.set_yticks(np.arange(0, round(pow(n,0.5)), 1))
-    ax.set_xticks(np.arange(-.5, round(pow(n,0.5)), 1), minor=True)
-    ax.set_yticks(np.arange(-.5, round(pow(n,0.5)), 1), minor=True)
-    ax.grid(which='minor', color='b', linestyle='-', linewidth=2)
-    plt.grid(visible=True,which = "minor", color ="black")
-    #plt.title("Distribution: Normal, %red = " +str(per_reduction)+ "%")
-    #plt.title("Distribution: Uniform, %red = " +str(per_reduction)+ "%")
-    #plt.title("Distribution: Triangular(Symmetric), %red = " +str(per_reduction)+ "%")
-    #plt.title("Distribution: Triangular(Left Skewed), %red = " +str(per_reduction)+ "%")
-    plt.title("Distribution: Bimodal, N1~({},{}), N2~({},{}), Weight1={}".format(params["u1"],params["sigma1"],params["u2"],params["sigma2"],params["weight"]))
-    plt.savefig("./images_12/gurobi_bimodal_{}_{}_{}_{}_{}_12.png".format(params["u1"],params["sigma1"],params["u2"],params["sigma2"],params["weight"]))
-    plt.close()
+    # plt.imshow(output_mat , cmap= "Greens" )
+    # ax = plt.gca()
+    # ax.set_xticks(np.arange(0, round(pow(n,0.5)), 1))
+    # ax.set_yticks(np.arange(0, round(pow(n,0.5)), 1))
+    # ax.set_xticks(np.arange(-.5, round(pow(n,0.5)), 1), minor=True)
+    # ax.set_yticks(np.arange(-.5, round(pow(n,0.5)), 1), minor=True)
+    # ax.grid(which='minor', color='b', linestyle='-', linewidth=2)
+    # plt.grid(visible=True,which = "minor", color ="black")
+    # plt.title("Distribution: Normal, N~({},{})".format(u,sigma))
+    # plt.savefig("./images_12/gurobi_normal_{}_{}_12.png".format(u,params["sigma"]))
+    # plt.title("Distribution: Uniform, U~({},{})".format(u,sigma))
+    # plt.savefig("./images_12/gurobi_uniform_{}_{}_12.png".format(u,params["sigma"]))
+    # plt.title("Distribution: Triangular_Symmetric, T~({},{})".format(u,sigma))
+    # plt.savefig("./images_12/gurobi_tri_sym_{}_{}_12.png".format(u,params["sigma"]))
+    # plt.title("Distribution: Triangular_Left_Skewed, T~({},{})".format(u,sigma))
+    # plt.savefig("./images_12/gurobi_tri_left_{}_{}_12.png".format(u,params["sigma"]))
+    # plt.title("Distribution: Triangular_Right_Skewed, T~({},{})".format(u,sigma))
+    # plt.savefig("./images_12/gurobi_tri_right_{}_{}_12.png".format(u,params["sigma"]))
+
+    # plt.title("Distribution: Bimodal, N1~({},{}), N2~({},{}), Weight1={}".format(params["u1"],params["sigma1"],params["u2"],params["sigma2"],params["weight"]))
+    # plt.savefig("./images_12/gurobi_bimodal_{}_{}_{}_{}_{}_12.png".format(params["u1"],params["sigma1"],params["u2"],params["sigma2"],params["weight"]))
+    # plt.close()
     return obj
-# n = 6*6
+# n = 12*12
 # p = 3
 # u = 180
 # sigma=30
-# u = find_u_triangle(u-3*sigma,u,u+3*sigma) # u for symmetric triangle distribution
-# u = find_u_triangle(u-3*sigma,u-sigma,u+3*sigma) # u for right skewed triangle distribution
+# # u = find_u_triangle(u-3*sigma,u,u+3*sigma) # u for symmetric triangle distribution
+# # u = find_u_triangle(u-3*sigma,u-sigma,u+3*sigma) # u for right skewed triangle distribution
 # u = find_u_triangle(u-3*sigma,u+sigma,u+3*sigma) # u for left skewed triangle distribution
 # T0 = 30
+# print(solver(n, p, u, T0,sigma=sigma))
 
 # Parameters for normal distribution
 # Mean1 = [180, 180, 180, 180, 180, 180]
